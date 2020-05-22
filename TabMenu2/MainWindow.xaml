@@ -4,37 +4,77 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TabMenu2"
+        xmlns:System="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
         xmlns:dragablz="clr-namespace:Dragablz;assembly=Dragablz"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        Height="600" Width="1080" WindowStartupLocation="CenterScreen" WindowStyle="SingleBorderWindow">
+        Height="600" Width="941.488" WindowStartupLocation="CenterScreen" WindowStyle="SingleBorderWindow">
     <Grid>
-        <Grid Height="60" VerticalAlignment="Top" Background="#FF9C27B0">
-            <TextBlock Text="Design com WPF" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22" FontFamily="Champagne &amp; Limousines" />
-            <Button HorizontalAlignment="Right" VerticalAlignment="Center" Background="{x:Null}" BorderBrush="{x:Null}">
-                <materialDesign:PackIcon Kind="Power"/>
-            </Button>
+        <Grid Height="60" VerticalAlignment="Top" Background="#3b7d40" Margin="0,0,-0.4,0">
+            <TextBlock Text="image converter" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22" FontFamily="Champagne &amp; Limousines" />            
         </Grid>
         <Grid Margin="0 60 0 0">
-            <dragablz:TabablzControl>
-                <dragablz:TabablzControl.InterTabController>
-                    <dragablz:InterTabController/>
-                </dragablz:TabablzControl.InterTabController>
-                <TabItem Header="HOME">
-                    <TextBlock Text="Hello SSSS World!" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <dragablz:TabablzControl Margin="0,0,-0.4,0.4" >
+
+                <TabItem Header="CREATE">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Grid Margin="15,15,7.5,15">
+                            <Rectangle x:Name="rectMain" Grid.Column="0" Fill="Gray"  Cursor ="Hand" MouseDown="Rectangle_MouseDown" Drop="Rectangle_Drop" AllowDrop="True"/>
+                            <TextBlock Grid.Column="0" Text="Drag image or click to browse" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Image Grid.Column="0" x:Name="imgMain"  Cursor ="Hand" MouseDown="Rectangle_MouseDown" Drop="Rectangle_Drop" AllowDrop="True"/>
+                        </Grid>                        
+                        
+                        <Grid Grid.Column="1" Margin="7.5,15,15,15">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="4*"/>
+                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="1*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row ="0" Text="awddawd" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="1*"/>
+                                </Grid.RowDefinitions>
+                                
+                                <TextBlock Text="Height" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                <TextBlock Text="Width" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                
+                                
+                                <TextBox Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" Text="1" Width="Auto" VerticalAlignment="Center"/>
+                                <TextBox Grid.Row="1" Grid.Column="1" Margin="10,0,0,0" Text="1" Width="Auto" VerticalAlignment="Center"/>
+                                
+                                <materialDesign:PackIcon Kind="Link" Grid.RowSpan="2" Grid.Column="2" Margin = "10,0,0,0" VerticalAlignment="Center"/>
+                            </Grid>
+                            
+                            <Button Grid.Row="2" Margin="0,15,0,0" Content="CREATE" Height="Auto"/>
+                            
+                            
+                        </Grid>
+                        
+                    </Grid>       
+                    
                 </TabItem>
-                <TabItem Header="DESIGN">
-                    <TextBlock Text="Amazing designs!" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TabItem Header="TILESETS">
+
                 </TabItem>
-                <TabItem Header="HELP">
-                    <TextBlock Text="Ask for any question!" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TabItem Header="OPTIONS">
+
                 </TabItem>
-                <TabItem>
-                    <TabItem.Header>
-                        <materialDesign:PackIcon Kind="GithubCircle"></materialDesign:PackIcon>
-                    </TabItem.Header>
-                    <TextBlock Text="github.com/Abel13/TabMenu2" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                </TabItem>
+
+
+
             </dragablz:TabablzControl>
         </Grid>
     </Grid>
