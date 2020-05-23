@@ -20,24 +20,41 @@
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="250"/>
                         </Grid.ColumnDefinitions>
 
                         <Grid Margin="15,15,7.5,15">
-                            <Rectangle x:Name="rectMain" Grid.Column="0" Fill="Gray"  Cursor ="Hand" MouseDown="Rectangle_MouseDown" Drop="Rectangle_Drop" AllowDrop="True"/>
-                            <TextBlock Grid.Column="0" Text="Drag image or click to browse" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            <Image Grid.Column="0" x:Name="imgMain"  Cursor ="Hand" MouseDown="Rectangle_MouseDown" Drop="Rectangle_Drop" AllowDrop="True"/>
+                            <Rectangle x:Name="rectMain" Grid.Column="0" Fill="#dddddd" Cursor ="Hand" MouseDown="rectMain_MouseDown" Drop="rectMain_Drop" AllowDrop="True" Stroke="#b5b5b5" StrokeThickness="3" DragEnter="rectMain_DragEnter" DragLeave="rectMain_DragLeave"/>
+                            <TextBlock Grid.Column="0" Text="Drop image or click to browse" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Image Grid.Column="0" x:Name="imgMain"  Cursor ="Hand" MouseDown="rectMain_MouseDown" Drop="rectMain_Drop" AllowDrop="True"/>
                         </Grid>                        
                         
                         <Grid Grid.Column="1" Margin="7.5,15,15,15">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="4*"/>
-                                <RowDefinition Height="1*"/>
-                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="67"/>
+                                <RowDefinition Height="64"/>
                             </Grid.RowDefinitions>
-                            <TextBlock Grid.Row ="0" Text="awddawd" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
-                            <Grid Grid.Row="1">
+                            
+                            <ScrollViewer Grid.Column ="0" CanContentScroll="True" HorizontalScrollBarVisibility ="Hidden" VerticalScrollBarVisibility="Visible">
+                                <Grid x:Name="tilesPreviewGrid">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1*"/>
+                                        <ColumnDefinition Width="1*"/>
+                                        <ColumnDefinition Width="1*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        
+                                    </Grid.RowDefinitions>                                                       
+                                </Grid>
+                            </ScrollViewer>
+
+                            <Rectangle x:Name="rectTilesPreview" Grid.Row="0" Fill="#dddddd" Cursor="Hand" AllowDrop="True" Stroke="#b5b5b5" StrokeThickness="3" MouseDown="rectTilesPreview_MouseDown" Drop="rectTilesPreview_Drop" DragEnter="rectTilesPreview_DragEnter" DragLeave="rectTilesPreview_DragLeave"/>
+                            <TextBlock x:Name="textTilesPreview" Grid.Column="0" Text="Drop tiles/tilesheet&#10;or click to browse" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"/>
+
+                            <Grid Grid.Row="1" Margin="0,15,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="2*"/>
                                     <ColumnDefinition Width="2*"/>
@@ -48,12 +65,12 @@
                                     <RowDefinition Height="1*"/>
                                 </Grid.RowDefinitions>
                                 
-                                <TextBlock Text="Height" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                                <TextBlock Text="Width" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                <TextBlock Text="Width" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                <TextBlock Text="Height" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                 
                                 
-                                <TextBox Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" Text="1" Width="Auto" VerticalAlignment="Center"/>
-                                <TextBox Grid.Row="1" Grid.Column="1" Margin="10,0,0,0" Text="1" Width="Auto" VerticalAlignment="Center"/>
+                                <TextBox x:Name="xScaling" Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" Text="1" Width="Auto" VerticalAlignment="Center" TextChanged="xScaling_TextChanged"/>
+                                <TextBox x:Name="yScaling" Grid.Row="1" Grid.Column="1" Margin="10,0,0,0" Text="1" Width="Auto" VerticalAlignment="Center" TextChanged="yScaling_TextChanged"/>
                                 
                                 <materialDesign:PackIcon Kind="Link" Grid.RowSpan="2" Grid.Column="2" Margin = "10,0,0,0" VerticalAlignment="Center"/>
                             </Grid>
