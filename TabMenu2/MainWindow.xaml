@@ -29,10 +29,10 @@
                             <Image Grid.Column="0" x:Name="imgMain"  Cursor ="Hand" MouseDown="rectMain_MouseDown" Drop="rectMain_Drop" AllowDrop="True"/>
                         </Grid>                        
                         
-                        <Grid Grid.Column="1" Margin="7.5,15,15,15">
+                        <Grid x:Name="tilesPanelGrid" Grid.Column="1" Margin="7.5,15,15,15">
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="4*"/>
-                                <RowDefinition Height="67"/>
+                                <RowDefinition Height="1*"/>
+                                <RowDefinition x:Name="textBoxRow" Height="75"/>
                                 <RowDefinition Height="64"/>
                             </Grid.RowDefinitions>
 
@@ -45,8 +45,7 @@
                                         <ColumnDefinition Width="1*"/>
                                     </Grid.ColumnDefinitions>
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        
+                                        <RowDefinition Height="Auto"/>                                        
                                     </Grid.RowDefinitions>                                                       
                                 </Grid>
                             </ScrollViewer>
@@ -62,17 +61,19 @@
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="1*"/>
-                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="30"/>
+                                    <RowDefinition Height="30"/>
                                 </Grid.RowDefinitions>
+
+                                <TextBlock x:Name="tilesSizeBoxLabel" Text="Tile Size" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                <TextBlock Text="Width" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                <TextBlock Text="Height" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+
+                                <TextBox x:Name="tilesSizeBox" Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" Text="64" Width="Auto" VerticalAlignment="Center" LostFocus="tilesSizeBox_LostFocus" KeyDown="tilesSizeBox_KeyDown"/>
+                                <TextBox x:Name="xScaling" Grid.Row="1" Grid.Column="1" Margin="10,0,0,0" Text="1" Width="Auto" VerticalAlignment="Center" TextChanged="xScaling_TextChanged"/>
+                                <TextBox x:Name="yScaling" Grid.Row="2" Grid.Column="1" Margin="10,0,0,0" Text="1" Width="Auto" VerticalAlignment="Center" TextChanged="yScaling_TextChanged"/>
                                 
-                                <TextBlock Text="Width" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                                <TextBlock Text="Height" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                                
-                                
-                                <TextBox x:Name="xScaling" Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" Text="1" Width="Auto" VerticalAlignment="Center" TextChanged="xScaling_TextChanged"/>
-                                <TextBox x:Name="yScaling" Grid.Row="1" Grid.Column="1" Margin="10,0,0,0" Text="1" Width="Auto" VerticalAlignment="Center" TextChanged="yScaling_TextChanged"/>
-                                
-                                <materialDesign:PackIcon Kind="Link" Grid.RowSpan="2" Grid.Column="2" Margin = "10,0,0,0" VerticalAlignment="Center"/>
+                                <materialDesign:PackIcon Kind="Link" Grid.RowSpan="2" Grid.Row="1" Grid.Column="2" Margin = "10,0,0,0" VerticalAlignment="Center"/>
                             </Grid>
                             
                             <Button Grid.Row="2" Margin="0,15,0,0" Content="CREATE" Height="Auto"/>
