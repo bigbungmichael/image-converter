@@ -22,6 +22,7 @@ namespace TabMenu2
     //margin constants in xaml
     //make tile panel grid width better
     //make tilesheet only update with valid data
+    //set lower tile size limit
     public partial class MainWindow : Window
     {
         //declaring global variables
@@ -172,8 +173,8 @@ namespace TabMenu2
             // get the width and height of a single tile
             tilesSize = Convert.ToInt32(tilesSizeBox.Text);
 
-            int tilesRowsInSheet = Convert.ToInt32(Convert.ToDouble(bmTilesheet.PixelHeight) / Convert.ToDouble(tilesSize));
-            int tilesColsInSheet = Convert.ToInt32(Convert.ToDouble(bmTilesheet.PixelWidth) / Convert.ToDouble(tilesSize));
+            int tilesRowsInSheet = Convert.ToInt32(Math.Floor(Convert.ToDouble(bmTilesheet.PixelHeight) / Convert.ToDouble(tilesSize)));
+            int tilesColsInSheet = Convert.ToInt32(Math.Floor(Convert.ToDouble(bmTilesheet.PixelWidth) / Convert.ToDouble(tilesSize)));
 
             // calculate the stride (how many bytes in a single row of the image) of the tile sheet
             int stride = bmTilesheet.PixelWidth * (bmTilesheet.Format.BitsPerPixel + 7) / 8;
