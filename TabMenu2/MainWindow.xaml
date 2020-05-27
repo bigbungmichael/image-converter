@@ -38,7 +38,7 @@
 
                             
                             <ScrollViewer Grid.Column ="0" CanContentScroll="True" HorizontalScrollBarVisibility ="Hidden" VerticalScrollBarVisibility="Visible">
-                                <Grid x:Name="tilesPreviewGrid">
+                                <Grid x:Name="tilesPreviewGrid" Cursor="Hand" AllowDrop="True" MouseDown="rectTilesPreview_MouseDown" Drop="rectTilesPreview_Drop" DragEnter="rectTilesPreview_DragEnter" DragLeave="rectTilesPreview_DragLeave">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="1*"/>
                                         <ColumnDefinition Width="1*"/>
@@ -50,8 +50,8 @@
                                 </Grid>
                             </ScrollViewer>
 
-                            <Rectangle x:Name="rectTilesPreview" Grid.Row="0" Fill="#dddddd" Cursor="Hand" AllowDrop="True" Stroke="#b5b5b5" StrokeThickness="3" MouseDown="rectTilesPreview_MouseDown" Drop="rectTilesPreview_Drop" DragEnter="rectTilesPreview_DragEnter" DragLeave="rectTilesPreview_DragLeave"/>
-                            <TextBlock x:Name="textTilesPreview" Grid.Column="0" Text="Drop tiles/tilesheet&#10;or click to browse" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"/>
+                            <Rectangle x:Name="rectTilesPreview" Grid.Row="0" Fill="#dddddd" Stroke="#b5b5b5" StrokeThickness="3" Cursor="Hand" AllowDrop="True" MouseDown="rectTilesPreview_MouseDown" Drop="rectTilesPreview_Drop" DragEnter="rectTilesPreview_DragEnter" DragLeave="rectTilesPreview_DragLeave"/>
+                            <TextBlock x:Name="textTilesPreview" Grid.Column="0" Text="Drop tiles/tilesheet&#10;or click to browse" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand" AllowDrop="True" TextAlignment="Center" MouseDown="rectTilesPreview_MouseDown" Drop="rectTilesPreview_Drop" DragEnter="rectTilesPreview_DragEnter" DragLeave="rectTilesPreview_DragLeave"/>
 
                             <Grid Grid.Row="1" Margin="0,15,0,0">
                                 <Grid.ColumnDefinitions>
@@ -69,9 +69,9 @@
                                 <TextBlock Text="Width" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                 <TextBlock Text="Height" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
 
-                                <TextBox x:Name="tilesSizeBox" Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" Text="64" Width="Auto" VerticalAlignment="Center" LostFocus="tilesSizeBox_LostFocus" KeyDown="tilesSizeBox_KeyDown"/>
-                                <TextBox x:Name="xScaling" Grid.Row="1" Grid.Column="1" Margin="10,0,0,0" Text="1" Width="Auto" VerticalAlignment="Center" TextChanged="xScaling_TextChanged"/>
-                                <TextBox x:Name="yScaling" Grid.Row="2" Grid.Column="1" Margin="10,0,0,0" Text="1" Width="Auto" VerticalAlignment="Center" TextChanged="yScaling_TextChanged"/>
+                                <TextBox x:Name="tilesSizeBox" Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" Text="64" Width="Auto" VerticalAlignment="Center" LostFocus="tilesSizeBox_LostFocus" KeyDown="tilesSizeBox_KeyDown" PreviewTextInput="tilesSizeBox_PreviewTextInput"/>
+                                <TextBox x:Name="xScaling" Grid.Row="1" Grid.Column="1" Margin="10,0,0,0" Text="1" Width="Auto" VerticalAlignment="Center" TextChanged="xScaling_TextChanged" IsEnabled="False" PreviewTextInput="xScaling_PreviewTextInput"/>
+                                <TextBox x:Name="yScaling" Grid.Row="2" Grid.Column="1" Margin="10,0,0,0" Text="1" Width="Auto" VerticalAlignment="Center" TextChanged="yScaling_TextChanged" IsEnabled="False" PreviewTextInput="yScaling_PreviewTextInput"/>
                                 
                                 <materialDesign:PackIcon Kind="Link" Grid.RowSpan="2" Grid.Row="1" Grid.Column="2" Margin = "10,0,0,0" VerticalAlignment="Center"/>
                             </Grid>
@@ -85,7 +85,50 @@
                     
                 </TabItem>
                 <TabItem Header="TILESETS">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="2*"/>
+                        </Grid.ColumnDefinitions>
 
+                        <Grid Grid.Column ="0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="1*"/>
+                            </Grid.RowDefinitions>
+
+                            <Grid Grid.Row="0" Margin="0,15,0,15">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*"/>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="2*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0" Text="active" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="tile" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="2" Text="colour" HorizontalAlignment="Center"/>
+
+                            </Grid>
+                            
+                            
+
+                            <ScrollViewer Grid.Row ="1" CanContentScroll="True" HorizontalScrollBarVisibility ="Hidden" VerticalScrollBarVisibility="Visible">
+                                <Grid x:Name="tilesOptionsGrid">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1*"/>
+                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="2*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                </Grid>
+
+                            </ScrollViewer>
+
+                        </Grid>
+
+                       
+
+                    </Grid>
                 </TabItem>
                 <TabItem Header="OPTIONS">
 

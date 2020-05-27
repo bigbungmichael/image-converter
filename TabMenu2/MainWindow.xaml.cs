@@ -39,6 +39,8 @@ namespace TabMenu2
         int tilesMargin = 5;
         int tilesImageSize = 60;
         int tilesSize = 1;
+        int tilesRowsInSheet = 1;
+        int tilesColsInSheet = 1;
 
         int tilesPanelCols = 3;
 
@@ -47,11 +49,11 @@ namespace TabMenu2
             InitializeComponent();
         }
 
-        //opens folder to select image upon mouse click
+        //opens dialog to select image upon mouse click
         private void rectMain_MouseDown(object sender, MouseButtonEventArgs e)
         {
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-            dlg.Filter = "Images (.png)|*.png";            
+            dlg.Filter = "Images (*.png;*.jpg)|*.png;*.jpg";            
             Nullable<bool> result = dlg.ShowDialog();
             if (result == true)
             {
@@ -66,11 +68,10 @@ namespace TabMenu2
             {
                 if (e.Data.GetDataPresent(DataFormats.FileDrop))
                 {
-                    // Note that you can have more than one file.
+                    //creates array of the filenames dropped in
                     string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
 
-                    // Assuming you have one file that you care about, pass it off to whatever
-                    // handling code you have defined.
+                    //loads the first file as the source image
                     loadImage(files[0]);
                 }
             }
@@ -87,32 +88,33 @@ namespace TabMenu2
             xRatio = Convert.ToDouble(bmMain.PixelHeight) / Convert.ToDouble(bmMain.PixelWidth);
             yRatio = 1 / xRatio;
 
-            xScaling.Text = Convert.ToString(bmMain.PixelWidth);
-            yScaling.Text = Convert.ToString(bmMain.PixelHeight);
-
+           
             imageLoaded = true;
-            //tryEnablingBoxes();
+            tryEnablingBoxes();
 
             rectMain.Visibility = Visibility.Hidden;
 
         }
 
+
+        //opens a dialog to either select 1 file (a tilesheet) or many (individual tiles)
         private void rectTilesPreview_MouseDown(object sender, MouseButtonEventArgs e)
         {
 
             
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-            dlg.Filter = "Images (.png)|*.png";
+            dlg.Filter = "Images (*.png;*.jpg)|*.png;*.jpg";
             dlg.Multiselect = true;            
             Nullable<bool> result = dlg.ShowDialog();
             if (result == true)
             {
 
+
                 rectTilesPreview.Visibility = Visibility.Hidden;
                 textTilesPreview.Visibility = Visibility.Hidden;
 
                 
-
+                
                 if (dlg.FileNames.Length == 1)
                 {
                     loadTilesheet(dlg.FileName);
@@ -147,18 +149,73 @@ namespace TabMenu2
                
 
                 tilesLoaded = true;
-                //tryEnablingBoxes();
+                tryEnablingBoxes();
+
+                addTilesToOptionList();
+
             }
         }
 
 
+        //loads 1 tilesheet or many tiles upon being drag and dropped in
+        private void rectTilesPreview_Drop(object sender, DragEventArgs e)
+        {
+            try
+            {
+                if (e.Data.GetDataPresent(DataFormats.FileDrop))
+                {
+                    rectTilesPreview.Visibility = Visibility.Hidden;
+                    textTilesPreview.Visibility = Visibility.Hidden;
+
+                    string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+                    if (files.Length == 1)
+                    {
+                        loadTilesheet(files[0]);
+                    }
+                    else
+                    {
+                        tilesPreviewGrid.Children.Clear();
+                        tilesPreviewGrid.RowDefinitions.Clear();
+
+                        int row = 0;
+                        int col = 0;
+
+                        var rowDefinition = new RowDefinition();
+                        rowDefinition.Height = GridLength.Auto;
+                        tilesPreviewGrid.RowDefinitions.Add(rowDefinition);
+
+                        foreach (string fileName in files)
+                        {
+                            ProcessTile(fileName, row, col);
+                            col++;
+                            if (col == tilesPanelCols)
+                            {
+                                col = 0;
+                                row++;
+                                rowDefinition = new RowDefinition();
+                                rowDefinition.Height = GridLength.Auto;
+                                tilesPreviewGrid.RowDefinitions.Add(rowDefinition);
+                            }
+                        }
+                    }
+
+                    tilesLoaded = true;
+                    tryEnablingBoxes();
+
+                    addTilesToOptionList();
+
+                }
+            }
+            catch (Exception e1) { }
+
+        }        
+
         void loadTilesheet(string sFileName)
         {
-
-            tilesPreviewGrid.Children.Clear();
-            tilesPreviewGrid.RowDefinitions.Clear();
-
+           
             textBoxRow.Height = new GridLength(100);
+
             bmTilesheet = new BitmapImage(new Uri(sFileName));
 
             try
@@ -170,11 +227,21 @@ namespace TabMenu2
 
         void addTilesheetBitsToList()
         {
-            // get the width and height of a single tile
+
+            tilesPreviewGrid.Children.Clear();
+            tilesPreviewGrid.RowDefinitions.Clear();
+
+            // get the width and height of a single tile from the text box
             tilesSize = Convert.ToInt32(tilesSizeBox.Text);
 
-            int tilesRowsInSheet = Convert.ToInt32(Math.Floor(Convert.ToDouble(bmTilesheet.PixelHeight) / Convert.ToDouble(tilesSize)));
-            int tilesColsInSheet = Convert.ToInt32(Math.Floor(Convert.ToDouble(bmTilesheet.PixelWidth) / Convert.ToDouble(tilesSize)));
+            //limit tile size to above 8
+            if (tilesSize < 8)
+            {
+                return;
+            }
+
+            tilesRowsInSheet = Convert.ToInt32(Math.Floor(Convert.ToDouble(bmTilesheet.PixelHeight) / Convert.ToDouble(tilesSize)));
+            tilesColsInSheet = Convert.ToInt32(Math.Floor(Convert.ToDouble(bmTilesheet.PixelWidth) / Convert.ToDouble(tilesSize)));
 
             // calculate the stride (how many bytes in a single row of the image) of the tile sheet
             int stride = bmTilesheet.PixelWidth * (bmTilesheet.Format.BitsPerPixel + 7) / 8;
@@ -223,9 +290,85 @@ namespace TabMenu2
 
                 }
             }
+
+
+        }
+
+        void addTilesToOptionList()
+        {
+            //iterate through all children of the grid
+
+            tilesOptionsGrid.Children.Clear();
+            tilesOptionsGrid.RowDefinitions.Clear();
+
+            int tilesOptionsGridRow = 0;
+
+            int tilesOptionsTileSize = 70;
+
+            foreach (Image tile in tilesPreviewGrid.Children)
+            {
+
+                RowDefinition rowDefinition = new RowDefinition();
+                rowDefinition.Height = GridLength.Auto;
+                tilesOptionsGrid.RowDefinitions.Add(rowDefinition);
+
+                //add a checkbox for each row                
+                CheckBox cbTileEnabled = new CheckBox();
+                cbTileEnabled.IsChecked = true;
+                cbTileEnabled.HorizontalAlignment = HorizontalAlignment.Center;
+
+                tilesOptionsGrid.Children.Add(cbTileEnabled);
+                Grid.SetColumn(cbTileEnabled, 0);
+                Grid.SetRow(cbTileEnabled, tilesOptionsGridRow);
+
+                //add an image of each tile for each row
+                Image newTileImage = new Image();
+
+                newTileImage.Source = tile.Source;
+                newTileImage.Height = tilesOptionsTileSize;
+                newTileImage.Width = tilesOptionsTileSize;
+                newTileImage.Stretch = Stretch.Fill;
+                newTileImage.Margin = new Thickness(2, 0, 2, 0);
+                
+                
+                tilesOptionsGrid.Children.Add(newTileImage);
+                Grid.SetColumn(newTileImage, 1);
+                Grid.SetRow(newTileImage, tilesOptionsGridRow);
+                
+
+                var bitmapSource = (BitmapSource) tile.Source;
+
+                var bmScaled = new TransformedBitmap(bitmapSource, new ScaleTransform(1.0 / bitmapSource.PixelWidth, 1.0 / bitmapSource.PixelHeight));
+
+                var pixels = new byte[4];
+                bmScaled.CopyPixels(pixels, 4, 0);
+                Color c = Color.FromRgb(pixels[2], pixels[1], pixels[0]);
+
+
+                //add an image of the average colour of each tile for each row
+                Rectangle tileAverageColour = new Rectangle();
+
+                tileAverageColour.Height = tilesOptionsTileSize;
+                tileAverageColour.Width = tilesOptionsTileSize;
+                SolidColorBrush colour = new SolidColorBrush();
+                colour.Color = c;
+                tileAverageColour.Fill = colour;
+                tileAverageColour.Margin = new Thickness(2, 0, 2, 0);
+                
+
+                tilesOptionsGrid.Children.Add(tileAverageColour);
+                Grid.SetColumn(tileAverageColour, 2);
+                Grid.SetRow(tileAverageColour, tilesOptionsGridRow);
+
+                
+
+                tilesOptionsGridRow++;
+
+            }
         }
 
         
+
 
         void ProcessTile(string fileName, int row, int col)
         {
@@ -254,20 +397,16 @@ namespace TabMenu2
             Grid.SetRow(newTileImage, row);
         }
 
-        private void rectTilesPreview_Drop(object sender, DragEventArgs e)
+        void tryEnablingBoxes()
         {
-            try
+            if ((imageLoaded == true) && (tilesLoaded == true))
             {
-                if (e.Data.GetDataPresent(DataFormats.FileDrop))
-                {
-                    // Note that you can have more than one file.
-                    string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                xScaling.IsEnabled = true;
+                yScaling.IsEnabled = true;
 
-                    
-                }
+                xScaling.Text = Convert.ToString((Math.Floor(Convert.ToDouble(bmMain.PixelWidth) / Convert.ToDouble(tilesSize))));
+                yScaling.Text = Convert.ToString((Math.Floor(Convert.ToDouble(bmMain.PixelHeight) / Convert.ToDouble(tilesSize)))); 
             }
-            catch (Exception e1) { }
-
         }
 
         private void rectMain_DragEnter(object sender, DragEventArgs e)
@@ -310,6 +449,12 @@ namespace TabMenu2
             e.Handled = regex.IsMatch(e.Text);
         }
 
+        private void tilesSizeBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            Regex regex = new Regex("[^0-9]+");
+            e.Handled = regex.IsMatch(e.Text);
+        }
+
         private void xScaling_TextChanged(object sender, TextChangedEventArgs e)
         {
             try
@@ -337,6 +482,7 @@ namespace TabMenu2
         private void tilesSizeBox_LostFocus(object sender, RoutedEventArgs e)
         {
             addTilesheetBitsToList();
+            addTilesToOptionList();
         }
 
         private void tilesSizeBox_KeyDown(object sender, KeyEventArgs e)
@@ -344,7 +490,10 @@ namespace TabMenu2
             if (e.Key == Key.Enter)
             {
                 addTilesheetBitsToList();
+                addTilesToOptionList();
             }
         }
+
+      
     }
 }
