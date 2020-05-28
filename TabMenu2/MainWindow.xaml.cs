@@ -16,6 +16,7 @@ using System.Text.RegularExpressions;
 using System.IO;
 using System.Windows.Media.Animation;
 
+
 namespace TabMenu2
 {
     //to do
@@ -494,6 +495,28 @@ namespace TabMenu2
             }
         }
 
-      
+        private void btnCreate_Click(object sender, RoutedEventArgs e) 
+        {
+            var bmScaled = new TransformedBitmap(bmMain, new ScaleTransform(Convert.ToDouble(xScaling.Text) / bmMain.PixelWidth, Convert.ToDouble(yScaling.Text) / bmMain.PixelHeight));
+            imgMain.Source = bmScaled;
+
+            int stride = bmScaled.PixelWidth * (bmScaled.Format.BitsPerPixel + 7) / 8;
+            byte[] pixels = new byte[bmScaled.PixelHeight * stride];
+
+            bmScaled.CopyPixels(pixels, stride, 0);
+
+            for (int i = 0; i < pixels.Length - 4; i = i + 4)
+            {                
+                Color c = Color.FromArgb(pixels[i + 3], pixels[i + 2], pixels[i + 1], pixels[i]);
+                SolidColorBrush colour = new SolidColorBrush();
+                colour.Color = c;
+                rectTest.Fill = colour;
+            }
+
+
+
+
+            Console.WriteLine("bruh");
+        }
     }
 }

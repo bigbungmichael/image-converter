@@ -76,7 +76,7 @@
                                 <materialDesign:PackIcon Kind="Link" Grid.RowSpan="2" Grid.Row="1" Grid.Column="2" Margin = "10,0,0,0" VerticalAlignment="Center"/>
                             </Grid>
                             
-                            <Button Grid.Row="2" Margin="0,15,0,0" Content="CREATE" Height="Auto"/>
+                            <Button x:Name="btnCreate" Grid.Row="2" Margin="0,15,0,0" Content="CREATE" Height="Auto" Click="btnCreate_Click"/>
                             
                             
                         </Grid>
@@ -123,10 +123,11 @@
                                 </Grid>
 
                             </ScrollViewer>
-
                         </Grid>
 
-                       
+                        <Rectangle  x:Name="rectTest" Grid.Column="1" Height="Auto"/>
+
+
 
                     </Grid>
                 </TabItem>
