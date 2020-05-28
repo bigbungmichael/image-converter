@@ -45,9 +45,52 @@ namespace TabMenu2
 
         int tilesPanelCols = 3;
 
+        List<Tile> tilesList = new List<Tile>();
+
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+
+        public class Tile
+        {
+            public bool enabled { get; set; } = false;
+            public Color colour { get; set; } = Color.FromRgb(0, 0, 0);
+            public BitmapSource bmSource { get; set; } = null;
+
+            public Tile()
+            {
+
+            }
+        }
+
+
+        private void btnCreate_Click(object sender, RoutedEventArgs e)
+        {
+            var bmScaled = new TransformedBitmap(bmMain, new ScaleTransform(Convert.ToDouble(xScaling.Text) / bmMain.PixelWidth, Convert.ToDouble(yScaling.Text) / bmMain.PixelHeight));
+            imgMain.Source = bmScaled;
+
+            int stride = (bmScaled.PixelWidth * bmScaled.Format.BitsPerPixel + 7) / 8;
+            byte[] pixels = new byte[bmScaled.PixelHeight * stride];
+
+            bmScaled.CopyPixels(pixels, stride, 0);
+
+            for (int i = 0; i <= pixels.Length - 4; i = i + 4)
+            {
+                Color c = Color.FromArgb(pixels[i + 3], pixels[i + 2], pixels[i + 1], pixels[i]);
+
+                SolidColorBrush colour = new SolidColorBrush();
+                colour.Color = c;
+                rectTest.Fill = colour;
+
+                findClosestTile(c);
+            }
+        }
+
+        void findClosestTile(Color c)
+        {
+
         }
 
         //opens dialog to select image upon mouse click
@@ -245,7 +288,7 @@ namespace TabMenu2
             tilesColsInSheet = Convert.ToInt32(Math.Floor(Convert.ToDouble(bmTilesheet.PixelWidth) / Convert.ToDouble(tilesSize)));
 
             // calculate the stride (how many bytes in a single row of the image) of the tile sheet
-            int stride = bmTilesheet.PixelWidth * (bmTilesheet.Format.BitsPerPixel + 7) / 8;
+            int stride = (bmTilesheet.PixelWidth * bmTilesheet.Format.BitsPerPixel + 7) / 8;
 
             // allocating space to hold the comnplete tile sheet
             byte[] data = new byte[stride * bmTilesheet.PixelHeight];
@@ -306,7 +349,10 @@ namespace TabMenu2
 
             int tilesOptionsTileSize = 70;
 
-            foreach (Image tile in tilesPreviewGrid.Children)
+            int index = 0;
+
+            //foreach (Image tile in tilesPreviewGrid.Children)
+            foreach (Tile tile in tilesList)
             {
 
                 RowDefinition rowDefinition = new RowDefinition();
@@ -315,8 +361,10 @@ namespace TabMenu2
 
                 //add a checkbox for each row                
                 CheckBox cbTileEnabled = new CheckBox();
-                cbTileEnabled.IsChecked = true;
+                cbTileEnabled.IsChecked = tile.enabled;
                 cbTileEnabled.HorizontalAlignment = HorizontalAlignment.Center;
+                cbTileEnabled.Click += cbTileEnabled_Click;
+                cbTileEnabled.Tag = index++;
 
                 tilesOptionsGrid.Children.Add(cbTileEnabled);
                 Grid.SetColumn(cbTileEnabled, 0);
@@ -325,7 +373,7 @@ namespace TabMenu2
                 //add an image of each tile for each row
                 Image newTileImage = new Image();
 
-                newTileImage.Source = tile.Source;
+                newTileImage.Source = tile.bmSource;
                 newTileImage.Height = tilesOptionsTileSize;
                 newTileImage.Width = tilesOptionsTileSize;
                 newTileImage.Stretch = Stretch.Fill;
@@ -337,7 +385,7 @@ namespace TabMenu2
                 Grid.SetRow(newTileImage, tilesOptionsGridRow);
                 
 
-                var bitmapSource = (BitmapSource) tile.Source;
+                var bitmapSource = (BitmapSource) tile.bmSource;
 
                 var bmScaled = new TransformedBitmap(bitmapSource, new ScaleTransform(1.0 / bitmapSource.PixelWidth, 1.0 / bitmapSource.PixelHeight));
 
@@ -368,8 +416,10 @@ namespace TabMenu2
             }
         }
 
-        
-
+        private void cbTileEnabled_Click(object sender, RoutedEventArgs e)
+        {
+            tilesList[Convert.ToInt32((sender as CheckBox).Tag)].enabled = Convert.ToBoolean((sender as CheckBox).IsChecked);
+        }
 
         void ProcessTile(string fileName, int row, int col)
         {
@@ -392,6 +442,12 @@ namespace TabMenu2
             newTileImage.Width = tilesImageSize;
             newTileImage.Stretch = Stretch.Fill;
             newTileImage.Margin = new Thickness(2, 2, 2, 2);
+
+            //add to internal array
+
+            Tile tile = new Tile();
+            tile.bmSource = bmTile;
+            tilesList.Add(tile);
 
             tilesPreviewGrid.Children.Add(newTileImage);
             Grid.SetColumn(newTileImage, col);
@@ -495,28 +551,6 @@ namespace TabMenu2
             }
         }
 
-        private void btnCreate_Click(object sender, RoutedEventArgs e) 
-        {
-            var bmScaled = new TransformedBitmap(bmMain, new ScaleTransform(Convert.ToDouble(xScaling.Text) / bmMain.PixelWidth, Convert.ToDouble(yScaling.Text) / bmMain.PixelHeight));
-            imgMain.Source = bmScaled;
-
-            int stride = bmScaled.PixelWidth * (bmScaled.Format.BitsPerPixel + 7) / 8;
-            byte[] pixels = new byte[bmScaled.PixelHeight * stride];
-
-            bmScaled.CopyPixels(pixels, stride, 0);
-
-            for (int i = 0; i < pixels.Length - 4; i = i + 4)
-            {                
-                Color c = Color.FromArgb(pixels[i + 3], pixels[i + 2], pixels[i + 1], pixels[i]);
-                SolidColorBrush colour = new SolidColorBrush();
-                colour.Color = c;
-                rectTest.Fill = colour;
-            }
-
-
-
-
-            Console.WriteLine("bruh");
-        }
+        
     }
 }

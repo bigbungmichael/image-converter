@@ -108,6 +108,8 @@
                                 <TextBlock Grid.Column="1" Text="tile" HorizontalAlignment="Center"/>
                                 <TextBlock Grid.Column="2" Text="colour" HorizontalAlignment="Center"/>
 
+                                
+
                             </Grid>
                             
                             
