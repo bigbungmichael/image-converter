@@ -15,6 +15,8 @@ using System.Windows.Shapes;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.Windows.Media.Animation;
+//using System.Drawing;
+
 
 
 namespace TabMenu2
@@ -57,7 +59,11 @@ namespace TabMenu2
         {
             public bool enabled { get; set; } = false;
             public Color colour { get; set; } = Color.FromRgb(0, 0, 0);
+            public System.Drawing.Color drawingColor { get; set; } = System.Drawing.Color.FromArgb(0, 0, 0, 0);
+            public ColorFormulas colorFormulas { get; set; } = null;
             public BitmapSource bmSource { get; set; } = null;
+            public double difference { get; set; } = 0.0;
+            public TextBlock differenceText { get; set; } = null;
 
             public Tile()
             {
@@ -65,33 +71,262 @@ namespace TabMenu2
             }
         }
 
-
-        private void btnCreate_Click(object sender, RoutedEventArgs e)
+        //https://blog.genreof.com/post/comparing-colors-using-delta-e-in-c
+        public class ColorFormulas
         {
-            var bmScaled = new TransformedBitmap(bmMain, new ScaleTransform(Convert.ToDouble(xScaling.Text) / bmMain.PixelWidth, Convert.ToDouble(yScaling.Text) / bmMain.PixelHeight));
-            imgMain.Source = bmScaled;
+            public double X { get; set; }
+            public double Y { get; set; }
+            public double Z { get; set; }
 
-            int stride = (bmScaled.PixelWidth * bmScaled.Format.BitsPerPixel + 7) / 8;
-            byte[] pixels = new byte[bmScaled.PixelHeight * stride];
+            public double CieL { get; set; }
+            public double CieA { get; set; }
+            public double CieB { get; set; }
 
-            bmScaled.CopyPixels(pixels, stride, 0);
-
-            for (int i = 0; i <= pixels.Length - 4; i = i + 4)
+            public ColorFormulas(int R, int G, int B)
             {
-                Color c = Color.FromArgb(pixels[i + 3], pixels[i + 2], pixels[i + 1], pixels[i]);
+                RGBtoLAB(R, G, B);
+            }
 
-                SolidColorBrush colour = new SolidColorBrush();
-                colour.Color = c;
-                rectTest.Fill = colour;
+            public void RGBtoLAB(int R, int G, int B)
+            {
+                RGBtoXYZ(R, G, B);
+                XYZtoLAB();
+            }
 
-                findClosestTile(c);
+            public void RGBtoXYZ(int RVal, int GVal, int BVal)
+            {
+                double R = Convert.ToDouble(RVal) / 255.0;       //R from 0 to 255
+                double G = Convert.ToDouble(GVal) / 255.0;       //G from 0 to 255
+                double B = Convert.ToDouble(BVal) / 255.0;       //B from 0 to 255
+
+                if (R > 0.04045)
+                {
+                    R = Math.Pow(((R + 0.055) / 1.055), 2.4);
+                }
+                else
+                {
+                    R = R / 12.92;
+                }
+                if (G > 0.04045)
+                {
+                    G = Math.Pow(((G + 0.055) / 1.055), 2.4);
+                }
+                else
+                {
+                    G = G / 12.92;
+                }
+                if (B > 0.04045)
+                {
+                    B = Math.Pow(((B + 0.055) / 1.055), 2.4);
+                }
+                else
+                {
+                    B = B / 12.92;
+                }
+
+                R = R * 100;
+                G = G * 100;
+                B = B * 100;
+
+                //Observer. = 2°, Illuminant = D65
+                X = R * 0.4124 + G * 0.3576 + B * 0.1805;
+                Y = R * 0.2126 + G * 0.7152 + B * 0.0722;
+                Z = R * 0.0193 + G * 0.1192 + B * 0.9505;
+            }
+
+            public void XYZtoLAB()
+            {
+                // based upon the XYZ - CIE-L*ab formula at easyrgb.com (http://www.easyrgb.com/index.php?X=MATH&H=07#text7)
+                double ref_X = 95.047;
+                double ref_Y = 100.000;
+                double ref_Z = 108.883;
+
+                double var_X = X / ref_X;         // Observer= 2°, Illuminant= D65
+                double var_Y = Y / ref_Y;
+                double var_Z = Z / ref_Z;
+
+                if (var_X > 0.008856)
+                {
+                    var_X = Math.Pow(var_X, (1 / 3.0));
+                }
+                else
+                {
+                    var_X = (7.787 * var_X) + (16 / 116.0);
+                }
+                if (var_Y > 0.008856)
+                {
+                    var_Y = Math.Pow(var_Y, (1 / 3.0));
+                }
+                else
+                {
+                    var_Y = (7.787 * var_Y) + (16 / 116.0);
+                }
+                if (var_Z > 0.008856)
+                {
+                    var_Z = Math.Pow(var_Z, (1 / 3.0));
+                }
+                else
+                {
+                    var_Z = (7.787 * var_Z) + (16 / 116.0);
+                }
+
+                CieL = (116 * var_Y) - 16;
+                CieA = 500 * (var_X - var_Y);
+                CieB = 200 * (var_Y - var_Z);
+            }
+
+            ///
+            /// The smaller the number returned by this, the closer the colors are
+            ///
+            ///
+            /// 
+            public int CompareTo(ColorFormulas oComparisionColor)
+            {
+                // Based upon the Delta-E (1976) formula at easyrgb.com (http://www.easyrgb.com/index.php?X=DELT&H=03#text3)
+                double DeltaE = Math.Sqrt(Math.Pow((CieL - oComparisionColor.CieL), 2) + Math.Pow((CieA - oComparisionColor.CieA), 2) + Math.Pow((CieB - oComparisionColor.CieB), 2));
+                return Convert.ToInt16(Math.Round(DeltaE));
+            }
+
+            public static int DoFullCompare(int R1, int G1, int B1, int R2, int G2, int B2)
+            {
+                ColorFormulas oColor1 = new ColorFormulas(R1, G1, B1);
+                ColorFormulas oColor2 = new ColorFormulas(R2, G2, B2);
+                return oColor1.CompareTo(oColor2);
             }
         }
 
-        void findClosestTile(Color c)
+
+        private void btnCreate_Click(object sender, RoutedEventArgs e)
+        {
+            Mouse.OverrideCursor = Cursors.Wait;
+
+            try
+            {
+                var bmScaled = new TransformedBitmap(bmMain, new ScaleTransform(Convert.ToDouble(xScaling.Text) / bmMain.PixelWidth, Convert.ToDouble(yScaling.Text) / bmMain.PixelHeight));
+                imgMain.Source = bmScaled;
+
+                int stride = (bmScaled.PixelWidth * bmScaled.Format.BitsPerPixel + 7) / 8;
+                byte[] pixels = new byte[bmScaled.PixelHeight * stride];
+
+                bmScaled.CopyPixels(pixels, stride, 0);
+
+                WriteableBitmap background = new WriteableBitmap(tilesSize * (Convert.ToInt32(xScaling.Text)), tilesSize * (Convert.ToInt32(yScaling.Text)), bmMain.DpiX, bmMain.DpiY, bmMain.Format, null);
+
+                for (int i = 0; i <= pixels.Length - 4; i = i + 4)
+                {
+                    Color c = Color.FromArgb(pixels[i + 3], pixels[i + 2], pixels[i + 1], pixels[i]);
+
+                    SolidColorBrush colour = new SolidColorBrush();
+                    colour.Color = c;
+                    rectTest.Fill = colour;
+
+                    var closestTile = findClosestTile(tilesList, c);
+                    int row = (i / 4) / (Convert.ToInt32(xScaling.Text) + 0);
+                    int col = (i / 4) % (Convert.ToInt32(xScaling.Text) + 0);
+
+                    addTileToImage(closestTile, row, col, background);
+
+                }
+
+                imgMain.Source = imgResult.Source;
+
+            }
+            finally
+            {
+                Mouse.OverrideCursor = null;
+            }
+        }
+
+        void addTileToImage(Tile tile, int row, int col, WriteableBitmap background)
+        {             
+
+            int sourceBytesPerPixel = bmMain.Format.BitsPerPixel / 8;
+            int sourceBytesPerLine = tile.bmSource.PixelWidth * sourceBytesPerPixel;
+            byte[] sourcePixels = new byte[sourceBytesPerLine * tile.bmSource.PixelHeight];
+
+            tile.bmSource.CopyPixels(sourcePixels, sourceBytesPerLine, 0);
+
+            Int32Rect sourceRect = new Int32Rect(col * tilesSize, row * tilesSize, tile.bmSource.PixelWidth, tile.bmSource.PixelHeight);
+            background.WritePixels(sourceRect, sourcePixels, sourceBytesPerLine, 0);
+
+            imgResult.Source = background;
+        }
+        
+        Tile findClosestTile(List<Tile> tilesList, Color c)
         {
 
+            //float factorSaturation = 100;
+
+            var drawingColor = System.Drawing.Color.FromArgb(c.A, c.R, c.G, c.B);
+
+            var hue1 = drawingColor.GetHue();
+            var sat1 = drawingColor.GetSaturation();
+            var bright1 = drawingColor.GetBrightness();            
+
+            var smallestDifference = Double.MaxValue;
+            Tile closestTile = null;
+
+            ColorFormulas deltaEPixelColour = new ColorFormulas(c.R, c.G, c.B);
+
+            foreach (Tile tile in tilesList)
+            {
+                //var difference =                     
+                //    getHueDistance(tile.drawingColor, drawingColor) + 
+                //    getSaturationDistance(tile.drawingColor.GetSaturation(), sat1) + 
+                //    getBrightnessDistance(tile.drawingColor.GetBrightness(), bright1);
+
+                //var euclideanDifference = getEuclideanDistance(tile.colour, c);
+
+                var deltaEDifference = tile.colorFormulas.CompareTo(deltaEPixelColour);
+
+                tile.difference = deltaEDifference;
+                tile.differenceText.Text = Convert.ToString(deltaEDifference);
+                
+                if ((deltaEDifference < smallestDifference))
+                {
+                    smallestDifference = deltaEDifference;
+                    closestTile = tile;
+                }
+            }
+
+            
+
+            return closestTile;         
+            
         }
+
+        //float getEuclideanDistance(Color color1, Color color2)
+        //{
+        //    int a = color1.A - color2.A,
+        //    r = color1.R - color2.R,
+        //    g = color1.G - color2.G,
+        //    b = color1.B - color2.B;
+        //    return a * a + r * r + g * g + b * b;
+        //}
+
+        //float getHueDistance(System.Drawing.Color color1, System.Drawing.Color color2)
+        //{
+        //    float factorHue = 1;                                                                                                                                                                                                                                                         
+
+        //    float d = Math.Abs(color1.GetHue() - color2.GetHue());
+        //    return factorHue * (d > 180 ? 360 - d : d);
+        //}
+
+        //float getSaturationDistance(float sat1, float sat2)
+        //{
+        //    int factorSat = 25;
+
+        //    float d = factorSat * Math.Abs(sat1 - sat2);
+        //    return d;
+        //}
+
+        //float getBrightnessDistance(float bright1, float bright2)
+        //{
+        //    int factorBright = 25;
+
+        //    float d = factorBright * Math.Abs(bright1 - bright2);
+        //    return d;
+        //}
 
         //opens dialog to select image upon mouse click
         private void rectMain_MouseDown(object sender, MouseButtonEventArgs e)
@@ -221,6 +456,7 @@ namespace TabMenu2
                     {
                         tilesPreviewGrid.Children.Clear();
                         tilesPreviewGrid.RowDefinitions.Clear();
+                        tilesList.Clear();
 
                         int row = 0;
                         int col = 0;
@@ -274,6 +510,7 @@ namespace TabMenu2
 
             tilesPreviewGrid.Children.Clear();
             tilesPreviewGrid.RowDefinitions.Clear();
+            tilesList.Clear();
 
             // get the width and height of a single tile from the text box
             tilesSize = Convert.ToInt32(tilesSizeBox.Text);
@@ -351,7 +588,7 @@ namespace TabMenu2
 
             int index = 0;
 
-            //foreach (Image tile in tilesPreviewGrid.Children)
+            
             foreach (Tile tile in tilesList)
             {
 
@@ -393,6 +630,10 @@ namespace TabMenu2
                 bmScaled.CopyPixels(pixels, 4, 0);
                 Color c = Color.FromRgb(pixels[2], pixels[1], pixels[0]);
 
+                tile.colour = c;
+                tile.drawingColor = System.Drawing.Color.FromArgb(c.A, c.R, c.G, c.B);
+                tile.colorFormulas = new ColorFormulas(c.R, c.G, c.B);
+               
 
                 //add an image of the average colour of each tile for each row
                 Rectangle tileAverageColour = new Rectangle();
@@ -409,7 +650,19 @@ namespace TabMenu2
                 Grid.SetColumn(tileAverageColour, 2);
                 Grid.SetRow(tileAverageColour, tilesOptionsGridRow);
 
-                
+                //add difference 
+
+                TextBlock tbDifference = new TextBlock();
+                tbDifference.Text = "?";
+                tbDifference.HorizontalAlignment = HorizontalAlignment.Center;              
+
+                tilesOptionsGrid.Children.Add(tbDifference);
+                Grid.SetColumn(tbDifference, 3);
+                Grid.SetRow(tbDifference, tilesOptionsGridRow);
+
+                tile.differenceText = tbDifference;
+
+
 
                 tilesOptionsGridRow++;
 

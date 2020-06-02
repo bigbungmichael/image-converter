@@ -102,11 +102,13 @@
                                     <ColumnDefinition Width="1*"/>
                                     <ColumnDefinition Width="2*"/>
                                     <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="1*"/>
                                 </Grid.ColumnDefinitions>
 
                                 <TextBlock Grid.Column="0" Text="active" HorizontalAlignment="Center"/>
                                 <TextBlock Grid.Column="1" Text="tile" HorizontalAlignment="Center"/>
                                 <TextBlock Grid.Column="2" Text="colour" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="3" Text="difference" HorizontalAlignment="Center"/>
 
                                 
 
@@ -120,6 +122,7 @@
                                         <ColumnDefinition Width="1*"/>
                                         <ColumnDefinition Width="2*"/>
                                         <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="1*"/>
                                     </Grid.ColumnDefinitions>
 
                                 </Grid>
@@ -134,7 +137,9 @@
                     </Grid>
                 </TabItem>
                 <TabItem Header="OPTIONS">
-
+                    <Grid>
+                        <Image x:Name="imgResult" Source="black.png" />                        
+                    </Grid>
                 </TabItem>
 
 
