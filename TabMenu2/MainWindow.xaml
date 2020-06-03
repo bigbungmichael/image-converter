@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:TabMenu2"
+        xmlns:local="clr-namespace:TabMenu2"        
         xmlns:System="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
         xmlns:dragablz="clr-namespace:Dragablz;assembly=Dragablz"
@@ -11,7 +11,7 @@
         Height="600" Width="941.488" WindowStartupLocation="CenterScreen" WindowStyle="SingleBorderWindow">
     <Grid>
         <Grid Height="60" VerticalAlignment="Top" Background="#3b7d40" Margin="0,0,-0.4,0">
-            <TextBlock Text="image converter" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22" FontFamily="Champagne &amp; Limousines" />            
+            <TextBlock Text="image converter" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22" FontFamily="Champagne &amp; Limousines" />
         </Grid>
         <Grid Margin="0 60 0 0">
             <dragablz:TabablzControl Margin="0,0,-0.4,0.4" >
@@ -23,12 +23,14 @@
                             <ColumnDefinition Width="250"/>
                         </Grid.ColumnDefinitions>
 
-                        <Grid Margin="15,15,7.5,15">
+                        <Grid Margin="15,15,7.5,15" xmlns:local="clr-namespace:PanAndZoom">
                             <Rectangle x:Name="rectMain" Grid.Column="0" Fill="#dddddd" Cursor ="Hand" MouseDown="rectMain_MouseDown" Drop="rectMain_Drop" AllowDrop="True" Stroke="#b5b5b5" StrokeThickness="3" DragEnter="rectMain_DragEnter" DragLeave="rectMain_DragLeave"/>
                             <TextBlock Grid.Column="0" Text="Drop image or click to browse" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            <Image Grid.Column="0" x:Name="imgMain"  Cursor ="Hand" MouseDown="rectMain_MouseDown" Drop="rectMain_Drop" AllowDrop="True"/>
-                        </Grid>                        
-                        
+                            <local:ZoomBorder x:Name="border" ClipToBounds="True">
+                                <Image Grid.Column="0" x:Name="imgMain"  Cursor ="Hand" Drop="rectMain_Drop" AllowDrop="True" MouseLeftButtonDown="rectMain_MouseDown"/>
+                            </local:ZoomBorder>                            
+                        </Grid>
+
                         <Grid x:Name="tilesPanelGrid" Grid.Column="1" Margin="7.5,15,15,15">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="1*"/>
@@ -36,7 +38,7 @@
                                 <RowDefinition Height="64"/>
                             </Grid.RowDefinitions>
 
-                            
+
                             <ScrollViewer Grid.Column ="0" CanContentScroll="True" HorizontalScrollBarVisibility ="Hidden" VerticalScrollBarVisibility="Visible">
                                 <Grid x:Name="tilesPreviewGrid" Cursor="Hand" AllowDrop="True" MouseDown="rectTilesPreview_MouseDown" Drop="rectTilesPreview_Drop" DragEnter="rectTilesPreview_DragEnter" DragLeave="rectTilesPreview_DragLeave">
                                     <Grid.ColumnDefinitions>
@@ -45,8 +47,8 @@
                                         <ColumnDefinition Width="1*"/>
                                     </Grid.ColumnDefinitions>
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>                                        
-                                    </Grid.RowDefinitions>                                                       
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
                                 </Grid>
                             </ScrollViewer>
 
@@ -72,17 +74,28 @@
                                 <TextBox x:Name="tilesSizeBox" Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" Text="64" Width="Auto" VerticalAlignment="Center" LostFocus="tilesSizeBox_LostFocus" KeyDown="tilesSizeBox_KeyDown" PreviewTextInput="tilesSizeBox_PreviewTextInput"/>
                                 <TextBox x:Name="xScaling" Grid.Row="1" Grid.Column="1" Margin="10,0,0,0" Text="1" Width="Auto" VerticalAlignment="Center" TextChanged="xScaling_TextChanged" IsEnabled="False" PreviewTextInput="xScaling_PreviewTextInput"/>
                                 <TextBox x:Name="yScaling" Grid.Row="2" Grid.Column="1" Margin="10,0,0,0" Text="1" Width="Auto" VerticalAlignment="Center" TextChanged="yScaling_TextChanged" IsEnabled="False" PreviewTextInput="yScaling_PreviewTextInput"/>
-                                
+
                                 <materialDesign:PackIcon Kind="Link" Grid.RowSpan="2" Grid.Row="1" Grid.Column="2" Margin = "10,0,0,0" VerticalAlignment="Center"/>
                             </Grid>
+
+                            <Grid Grid.Row="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Button x:Name="btnCreate" Grid.Column="0" Margin="0,15,4,0" Content="CREATE" Height="Auto" Click="btnCreate_Click"/>
+                                <Button x:Name="btnSave" Grid.Column="1" Margin="4,15,0,0" Content="SAVE" Height="Auto" Click="btnSave_Click" IsEnabled="False"/>
+                                
+                            </Grid>
+
                             
-                            <Button x:Name="btnCreate" Grid.Row="2" Margin="0,15,0,0" Content="CREATE" Height="Auto" Click="btnCreate_Click"/>
-                            
-                            
+
+
                         </Grid>
-                        
-                    </Grid>       
-                    
+
+                    </Grid>
+
                 </TabItem>
                 <TabItem Header="TILESETS">
                     <Grid>
@@ -110,11 +123,11 @@
                                 <TextBlock Grid.Column="2" Text="colour" HorizontalAlignment="Center"/>
                                 <TextBlock Grid.Column="3" Text="difference" HorizontalAlignment="Center"/>
 
-                                
+
 
                             </Grid>
-                            
-                            
+
+
 
                             <ScrollViewer Grid.Row ="1" CanContentScroll="True" HorizontalScrollBarVisibility ="Hidden" VerticalScrollBarVisibility="Visible">
                                 <Grid x:Name="tilesOptionsGrid">
@@ -138,7 +151,7 @@
                 </TabItem>
                 <TabItem Header="OPTIONS">
                     <Grid>
-                        <Image x:Name="imgResult" Source="black.png" />                        
+                        <Image x:Name="imgResult" Source="black.png" />
                     </Grid>
                 </TabItem>
 

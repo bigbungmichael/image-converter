@@ -15,12 +15,14 @@ using System.Windows.Shapes;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.Windows.Media.Animation;
+using PanAndZoom;
 //using System.Drawing;
 
 
 
 namespace TabMenu2
 {
+    
     //to do
     //margin constants in xaml
     //make tile panel grid width better
@@ -47,6 +49,8 @@ namespace TabMenu2
 
         int tilesPanelCols = 3;
 
+       
+
         List<Tile> tilesList = new List<Tile>();
 
         public MainWindow()
@@ -71,6 +75,7 @@ namespace TabMenu2
             }
         }
 
+       
         //https://blog.genreof.com/post/comparing-colors-using-delta-e-in-c
         public class ColorFormulas
         {
@@ -183,7 +188,8 @@ namespace TabMenu2
             public int CompareTo(ColorFormulas oComparisionColor)
             {
                 // Based upon the Delta-E (1976) formula at easyrgb.com (http://www.easyrgb.com/index.php?X=DELT&H=03#text3)
-                double DeltaE = Math.Sqrt(Math.Pow((CieL - oComparisionColor.CieL), 2) + Math.Pow((CieA - oComparisionColor.CieA), 2) + Math.Pow((CieB - oComparisionColor.CieB), 2));
+                //double DeltaE = Math.Sqrt(Math.Pow((CieL - oComparisionColor.CieL), 2) + Math.Pow((CieA - oComparisionColor.CieA), 2) + Math.Pow((CieB - oComparisionColor.CieB), 2));
+                double DeltaE = Math.Pow((CieL - oComparisionColor.CieL), 2) + Math.Pow((CieA - oComparisionColor.CieA), 2) + Math.Pow((CieB - oComparisionColor.CieB), 2);
                 return Convert.ToInt16(Math.Round(DeltaE));
             }
 
@@ -230,15 +236,20 @@ namespace TabMenu2
 
                 imgMain.Source = imgResult.Source;
 
+                btnSave.IsEnabled = true;
+
             }
             finally
             {
                 Mouse.OverrideCursor = null;
             }
+
+            
+
         }
 
         void addTileToImage(Tile tile, int row, int col, WriteableBitmap background)
-        {             
+        {
 
             int sourceBytesPerPixel = bmMain.Format.BitsPerPixel / 8;
             int sourceBytesPerLine = tile.bmSource.PixelWidth * sourceBytesPerPixel;
@@ -251,7 +262,7 @@ namespace TabMenu2
 
             imgResult.Source = background;
         }
-        
+
         Tile findClosestTile(List<Tile> tilesList, Color c)
         {
 
@@ -261,7 +272,7 @@ namespace TabMenu2
 
             var hue1 = drawingColor.GetHue();
             var sat1 = drawingColor.GetSaturation();
-            var bright1 = drawingColor.GetBrightness();            
+            var bright1 = drawingColor.GetBrightness();
 
             var smallestDifference = Double.MaxValue;
             Tile closestTile = null;
@@ -281,7 +292,7 @@ namespace TabMenu2
 
                 tile.difference = deltaEDifference;
                 tile.differenceText.Text = Convert.ToString(deltaEDifference);
-                
+
                 if ((deltaEDifference < smallestDifference))
                 {
                     smallestDifference = deltaEDifference;
@@ -289,10 +300,10 @@ namespace TabMenu2
                 }
             }
 
-            
 
-            return closestTile;         
-            
+
+            return closestTile;
+
         }
 
         //float getEuclideanDistance(Color color1, Color color2)
@@ -332,7 +343,7 @@ namespace TabMenu2
         private void rectMain_MouseDown(object sender, MouseButtonEventArgs e)
         {
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-            dlg.Filter = "Images (*.png;*.jpg)|*.png;*.jpg";            
+            dlg.Filter = "Images (*.png;*.jpg)|*.png;*.jpg";
             Nullable<bool> result = dlg.ShowDialog();
             if (result == true)
             {
@@ -367,7 +378,7 @@ namespace TabMenu2
             xRatio = Convert.ToDouble(bmMain.PixelHeight) / Convert.ToDouble(bmMain.PixelWidth);
             yRatio = 1 / xRatio;
 
-           
+
             imageLoaded = true;
             tryEnablingBoxes();
 
@@ -380,10 +391,10 @@ namespace TabMenu2
         private void rectTilesPreview_MouseDown(object sender, MouseButtonEventArgs e)
         {
 
-            
+
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
             dlg.Filter = "Images (*.png;*.jpg)|*.png;*.jpg";
-            dlg.Multiselect = true;            
+            dlg.Multiselect = true;
             Nullable<bool> result = dlg.ShowDialog();
             if (result == true)
             {
@@ -392,8 +403,8 @@ namespace TabMenu2
                 rectTilesPreview.Visibility = Visibility.Hidden;
                 textTilesPreview.Visibility = Visibility.Hidden;
 
-                
-                
+
+
                 if (dlg.FileNames.Length == 1)
                 {
                     loadTilesheet(dlg.FileName);
@@ -425,7 +436,7 @@ namespace TabMenu2
                     }
                 }
 
-               
+
 
                 tilesLoaded = true;
                 tryEnablingBoxes();
@@ -489,11 +500,11 @@ namespace TabMenu2
             }
             catch (Exception e1) { }
 
-        }        
+        }
 
         void loadTilesheet(string sFileName)
         {
-           
+
             textBoxRow.Height = new GridLength(100);
 
             bmTilesheet = new BitmapImage(new Uri(sFileName));
@@ -502,7 +513,7 @@ namespace TabMenu2
             {
                 addTilesheetBitsToList();
             }
-            catch(System.FormatException e1) { }
+            catch (System.FormatException e1) { }
         }
 
         void addTilesheetBitsToList()
@@ -588,7 +599,7 @@ namespace TabMenu2
 
             int index = 0;
 
-            
+
             foreach (Tile tile in tilesList)
             {
 
@@ -615,14 +626,14 @@ namespace TabMenu2
                 newTileImage.Width = tilesOptionsTileSize;
                 newTileImage.Stretch = Stretch.Fill;
                 newTileImage.Margin = new Thickness(2, 0, 2, 0);
-                
-                
+
+
                 tilesOptionsGrid.Children.Add(newTileImage);
                 Grid.SetColumn(newTileImage, 1);
                 Grid.SetRow(newTileImage, tilesOptionsGridRow);
-                
 
-                var bitmapSource = (BitmapSource) tile.bmSource;
+
+                var bitmapSource = (BitmapSource)tile.bmSource;
 
                 var bmScaled = new TransformedBitmap(bitmapSource, new ScaleTransform(1.0 / bitmapSource.PixelWidth, 1.0 / bitmapSource.PixelHeight));
 
@@ -633,7 +644,7 @@ namespace TabMenu2
                 tile.colour = c;
                 tile.drawingColor = System.Drawing.Color.FromArgb(c.A, c.R, c.G, c.B);
                 tile.colorFormulas = new ColorFormulas(c.R, c.G, c.B);
-               
+
 
                 //add an image of the average colour of each tile for each row
                 Rectangle tileAverageColour = new Rectangle();
@@ -644,7 +655,7 @@ namespace TabMenu2
                 colour.Color = c;
                 tileAverageColour.Fill = colour;
                 tileAverageColour.Margin = new Thickness(2, 0, 2, 0);
-                
+
 
                 tilesOptionsGrid.Children.Add(tileAverageColour);
                 Grid.SetColumn(tileAverageColour, 2);
@@ -654,7 +665,7 @@ namespace TabMenu2
 
                 TextBlock tbDifference = new TextBlock();
                 tbDifference.Text = "?";
-                tbDifference.HorizontalAlignment = HorizontalAlignment.Center;              
+                tbDifference.HorizontalAlignment = HorizontalAlignment.Center;
 
                 tilesOptionsGrid.Children.Add(tbDifference);
                 Grid.SetColumn(tbDifference, 3);
@@ -678,7 +689,7 @@ namespace TabMenu2
         {
             Console.WriteLine(fileName);
             // create a new image for each tile and add it to the stackPanel
-          
+
             BitmapSource bmTile = new BitmapImage(new Uri(fileName));
 
             addImageToList(bmTile, row, col);
@@ -715,7 +726,7 @@ namespace TabMenu2
                 yScaling.IsEnabled = true;
 
                 xScaling.Text = Convert.ToString((Math.Floor(Convert.ToDouble(bmMain.PixelWidth) / Convert.ToDouble(tilesSize))));
-                yScaling.Text = Convert.ToString((Math.Floor(Convert.ToDouble(bmMain.PixelHeight) / Convert.ToDouble(tilesSize)))); 
+                yScaling.Text = Convert.ToString((Math.Floor(Convert.ToDouble(bmMain.PixelHeight) / Convert.ToDouble(tilesSize))));
             }
         }
 
@@ -804,6 +815,20 @@ namespace TabMenu2
             }
         }
 
-        
+        private void btnSave_Click(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+            dlg.Filter = "Images (.png)|*.png";
+            Nullable<bool> result = dlg.ShowDialog();
+            if (result == true)
+            {
+                using (var fileStream = new FileStream(dlg.FileName, FileMode.Create))
+                {
+                    BitmapEncoder encoder = new PngBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create((BitmapSource) imgMain.Source));
+                    encoder.Save(fileStream);
+                }
+            }
+        }
     }
 }
