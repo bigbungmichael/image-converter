@@ -16,11 +16,12 @@ using System.Text.RegularExpressions;
 using System.IO;
 using System.Windows.Media.Animation;
 using PanAndZoom;
-//using System.Drawing;
+using DeltaE;
+using CustomTile;
 
 
 
-namespace TabMenu2
+namespace ImageConverter
 {
     
     //to do
@@ -42,165 +43,26 @@ namespace TabMenu2
         bool tilesLoaded = false;
 
         int tilesMargin = 5;
-        int tilesImageSize = 60;
+        int tilesMainDisplaySize = 60;
         int tilesSize = 1;
         int tilesRowsInSheet = 1;
         int tilesColsInSheet = 1;
 
         int tilesPanelCols = 3;
 
-       
+        int tilesOptionsDisplaySize = 70;
+
+        int defaultTileSize = 32;
+
+
 
         List<Tile> tilesList = new List<Tile>();
 
         public MainWindow()
         {
             InitializeComponent();
-        }
-
-
-        public class Tile
-        {
-            public bool enabled { get; set; } = false;
-            public Color colour { get; set; } = Color.FromRgb(0, 0, 0);
-            public System.Drawing.Color drawingColor { get; set; } = System.Drawing.Color.FromArgb(0, 0, 0, 0);
-            public ColorFormulas colorFormulas { get; set; } = null;
-            public BitmapSource bmSource { get; set; } = null;
-            public double difference { get; set; } = 0.0;
-            public TextBlock differenceText { get; set; } = null;
-
-            public Tile()
-            {
-
-            }
-        }
-
+        }      
        
-        //https://blog.genreof.com/post/comparing-colors-using-delta-e-in-c
-        public class ColorFormulas
-        {
-            public double X { get; set; }
-            public double Y { get; set; }
-            public double Z { get; set; }
-
-            public double CieL { get; set; }
-            public double CieA { get; set; }
-            public double CieB { get; set; }
-
-            public ColorFormulas(int R, int G, int B)
-            {
-                RGBtoLAB(R, G, B);
-            }
-
-            public void RGBtoLAB(int R, int G, int B)
-            {
-                RGBtoXYZ(R, G, B);
-                XYZtoLAB();
-            }
-
-            public void RGBtoXYZ(int RVal, int GVal, int BVal)
-            {
-                double R = Convert.ToDouble(RVal) / 255.0;       //R from 0 to 255
-                double G = Convert.ToDouble(GVal) / 255.0;       //G from 0 to 255
-                double B = Convert.ToDouble(BVal) / 255.0;       //B from 0 to 255
-
-                if (R > 0.04045)
-                {
-                    R = Math.Pow(((R + 0.055) / 1.055), 2.4);
-                }
-                else
-                {
-                    R = R / 12.92;
-                }
-                if (G > 0.04045)
-                {
-                    G = Math.Pow(((G + 0.055) / 1.055), 2.4);
-                }
-                else
-                {
-                    G = G / 12.92;
-                }
-                if (B > 0.04045)
-                {
-                    B = Math.Pow(((B + 0.055) / 1.055), 2.4);
-                }
-                else
-                {
-                    B = B / 12.92;
-                }
-
-                R = R * 100;
-                G = G * 100;
-                B = B * 100;
-
-                //Observer. = 2°, Illuminant = D65
-                X = R * 0.4124 + G * 0.3576 + B * 0.1805;
-                Y = R * 0.2126 + G * 0.7152 + B * 0.0722;
-                Z = R * 0.0193 + G * 0.1192 + B * 0.9505;
-            }
-
-            public void XYZtoLAB()
-            {
-                // based upon the XYZ - CIE-L*ab formula at easyrgb.com (http://www.easyrgb.com/index.php?X=MATH&H=07#text7)
-                double ref_X = 95.047;
-                double ref_Y = 100.000;
-                double ref_Z = 108.883;
-
-                double var_X = X / ref_X;         // Observer= 2°, Illuminant= D65
-                double var_Y = Y / ref_Y;
-                double var_Z = Z / ref_Z;
-
-                if (var_X > 0.008856)
-                {
-                    var_X = Math.Pow(var_X, (1 / 3.0));
-                }
-                else
-                {
-                    var_X = (7.787 * var_X) + (16 / 116.0);
-                }
-                if (var_Y > 0.008856)
-                {
-                    var_Y = Math.Pow(var_Y, (1 / 3.0));
-                }
-                else
-                {
-                    var_Y = (7.787 * var_Y) + (16 / 116.0);
-                }
-                if (var_Z > 0.008856)
-                {
-                    var_Z = Math.Pow(var_Z, (1 / 3.0));
-                }
-                else
-                {
-                    var_Z = (7.787 * var_Z) + (16 / 116.0);
-                }
-
-                CieL = (116 * var_Y) - 16;
-                CieA = 500 * (var_X - var_Y);
-                CieB = 200 * (var_Y - var_Z);
-            }
-
-            ///
-            /// The smaller the number returned by this, the closer the colors are
-            ///
-            ///
-            /// 
-            public int CompareTo(ColorFormulas oComparisionColor)
-            {
-                // Based upon the Delta-E (1976) formula at easyrgb.com (http://www.easyrgb.com/index.php?X=DELT&H=03#text3)
-                //double DeltaE = Math.Sqrt(Math.Pow((CieL - oComparisionColor.CieL), 2) + Math.Pow((CieA - oComparisionColor.CieA), 2) + Math.Pow((CieB - oComparisionColor.CieB), 2));
-                double DeltaE = Math.Pow((CieL - oComparisionColor.CieL), 2) + Math.Pow((CieA - oComparisionColor.CieA), 2) + Math.Pow((CieB - oComparisionColor.CieB), 2);
-                return Convert.ToInt16(Math.Round(DeltaE));
-            }
-
-            public static int DoFullCompare(int R1, int G1, int B1, int R2, int G2, int B2)
-            {
-                ColorFormulas oColor1 = new ColorFormulas(R1, G1, B1);
-                ColorFormulas oColor2 = new ColorFormulas(R2, G2, B2);
-                return oColor1.CompareTo(oColor2);
-            }
-        }
-
 
         private void btnCreate_Click(object sender, RoutedEventArgs e)
         {
@@ -222,16 +84,15 @@ namespace TabMenu2
                 {
                     Color c = Color.FromArgb(pixels[i + 3], pixels[i + 2], pixels[i + 1], pixels[i]);
 
-                    SolidColorBrush colour = new SolidColorBrush();
-                    colour.Color = c;
-                    rectTest.Fill = colour;
+                    SolidColorBrush color = new SolidColorBrush();
+                    color.Color = c;
+                    rectTest.Fill = color;
 
                     var closestTile = findClosestTile(tilesList, c);
                     int row = (i / 4) / (Convert.ToInt32(xScaling.Text) + 0);
                     int col = (i / 4) % (Convert.ToInt32(xScaling.Text) + 0);
 
                     addTileToImage(closestTile, row, col, background);
-
                 }
 
                 imgMain.Source = imgResult.Source;
@@ -277,7 +138,7 @@ namespace TabMenu2
             var smallestDifference = Double.MaxValue;
             Tile closestTile = null;
 
-            ColorFormulas deltaEPixelColour = new ColorFormulas(c.R, c.G, c.B);
+            ColorFormulas deltaEPixelcolor = new ColorFormulas(c.R, c.G, c.B);
 
             foreach (Tile tile in tilesList)
             {
@@ -286,9 +147,9 @@ namespace TabMenu2
                 //    getSaturationDistance(tile.drawingColor.GetSaturation(), sat1) + 
                 //    getBrightnessDistance(tile.drawingColor.GetBrightness(), bright1);
 
-                //var euclideanDifference = getEuclideanDistance(tile.colour, c);
+                //var euclideanDifference = getEuclideanDistance(tile.color, c);
 
-                var deltaEDifference = tile.colorFormulas.CompareTo(deltaEPixelColour);
+                var deltaEDifference = tile.colorFormulas.CompareTo(deltaEPixelcolor);
 
                 tile.difference = deltaEDifference;
                 tile.differenceText.Text = Convert.ToString(deltaEDifference);
@@ -306,38 +167,7 @@ namespace TabMenu2
 
         }
 
-        //float getEuclideanDistance(Color color1, Color color2)
-        //{
-        //    int a = color1.A - color2.A,
-        //    r = color1.R - color2.R,
-        //    g = color1.G - color2.G,
-        //    b = color1.B - color2.B;
-        //    return a * a + r * r + g * g + b * b;
-        //}
-
-        //float getHueDistance(System.Drawing.Color color1, System.Drawing.Color color2)
-        //{
-        //    float factorHue = 1;                                                                                                                                                                                                                                                         
-
-        //    float d = Math.Abs(color1.GetHue() - color2.GetHue());
-        //    return factorHue * (d > 180 ? 360 - d : d);
-        //}
-
-        //float getSaturationDistance(float sat1, float sat2)
-        //{
-        //    int factorSat = 25;
-
-        //    float d = factorSat * Math.Abs(sat1 - sat2);
-        //    return d;
-        //}
-
-        //float getBrightnessDistance(float bright1, float bright2)
-        //{
-        //    int factorBright = 25;
-
-        //    float d = factorBright * Math.Abs(bright1 - bright2);
-        //    return d;
-        //}
+        
 
         //opens dialog to select image upon mouse click
         private void rectMain_MouseDown(object sender, MouseButtonEventArgs e)
@@ -411,28 +241,16 @@ namespace TabMenu2
                 }
                 else
                 {
+                    tilesSize = defaultTileSize;
+
                     tilesPreviewGrid.Children.Clear();
                     tilesPreviewGrid.RowDefinitions.Clear();
-
-                    int row = 0;
-                    int col = 0;
-
-                    var rowDefinition = new RowDefinition();
-                    rowDefinition.Height = GridLength.Auto;
-                    tilesPreviewGrid.RowDefinitions.Add(rowDefinition);
+                    
+                    int index = 0;                    
 
                     foreach (string fileName in dlg.FileNames)
                     {
-                        ProcessTile(fileName, row, col);
-                        col++;
-                        if (col == tilesPanelCols)
-                        {
-                            col = 0;
-                            row++;
-                            rowDefinition = new RowDefinition();
-                            rowDefinition.Height = GridLength.Auto;
-                            tilesPreviewGrid.RowDefinitions.Add(rowDefinition);
-                        }
+                        ProcessTile(fileName, index++);                        
                     }
                 }
 
@@ -465,29 +283,17 @@ namespace TabMenu2
                     }
                     else
                     {
+                        tilesSize = defaultTileSize;
+
                         tilesPreviewGrid.Children.Clear();
                         tilesPreviewGrid.RowDefinitions.Clear();
                         tilesList.Clear();
 
-                        int row = 0;
-                        int col = 0;
-
-                        var rowDefinition = new RowDefinition();
-                        rowDefinition.Height = GridLength.Auto;
-                        tilesPreviewGrid.RowDefinitions.Add(rowDefinition);
+                        int index = 0;                       
 
                         foreach (string fileName in files)
                         {
-                            ProcessTile(fileName, row, col);
-                            col++;
-                            if (col == tilesPanelCols)
-                            {
-                                col = 0;
-                                row++;
-                                rowDefinition = new RowDefinition();
-                                rowDefinition.Height = GridLength.Auto;
-                                tilesPreviewGrid.RowDefinitions.Add(rowDefinition);
-                            }
+                            ProcessTile(fileName, index);                   
                         }
                     }
 
@@ -544,8 +350,7 @@ namespace TabMenu2
             // copying the tilesheet into the buffer
             bmTilesheet.CopyPixels(data, stride, 0);
 
-            int row = 0;
-            int col = 0;
+            int index = 0;
 
             var rowDefinition = new RowDefinition();
             rowDefinition.Height = GridLength.Auto;
@@ -568,17 +373,7 @@ namespace TabMenu2
                           0
                         );
 
-                    addImageToList(background, row, col);
-
-                    col++;
-                    if (col == tilesPanelCols)
-                    {
-                        col = 0;
-                        row++;
-                        rowDefinition = new RowDefinition();
-                        rowDefinition.Height = GridLength.Auto;
-                        tilesPreviewGrid.RowDefinitions.Add(rowDefinition);
-                    }
+                    addImageToList(background, index++);                  
 
                 }
             }
@@ -595,7 +390,7 @@ namespace TabMenu2
 
             int tilesOptionsGridRow = 0;
 
-            int tilesOptionsTileSize = 70;
+            int tilesOptionsDisplaySize = 70;
 
             int index = 0;
 
@@ -622,8 +417,8 @@ namespace TabMenu2
                 Image newTileImage = new Image();
 
                 newTileImage.Source = tile.bmSource;
-                newTileImage.Height = tilesOptionsTileSize;
-                newTileImage.Width = tilesOptionsTileSize;
+                newTileImage.Height = tilesOptionsDisplaySize;
+                newTileImage.Width = tilesOptionsDisplaySize;
                 newTileImage.Stretch = Stretch.Fill;
                 newTileImage.Margin = new Thickness(2, 0, 2, 0);
 
@@ -632,34 +427,20 @@ namespace TabMenu2
                 Grid.SetColumn(newTileImage, 1);
                 Grid.SetRow(newTileImage, tilesOptionsGridRow);
 
+                //add an image of the average color of each tile for each row
+                Rectangle tileAveragecolor = new Rectangle();
 
-                var bitmapSource = (BitmapSource)tile.bmSource;
-
-                var bmScaled = new TransformedBitmap(bitmapSource, new ScaleTransform(1.0 / bitmapSource.PixelWidth, 1.0 / bitmapSource.PixelHeight));
-
-                var pixels = new byte[4];
-                bmScaled.CopyPixels(pixels, 4, 0);
-                Color c = Color.FromRgb(pixels[2], pixels[1], pixels[0]);
-
-                tile.colour = c;
-                tile.drawingColor = System.Drawing.Color.FromArgb(c.A, c.R, c.G, c.B);
-                tile.colorFormulas = new ColorFormulas(c.R, c.G, c.B);
+                tileAveragecolor.Height = tilesOptionsDisplaySize;
+                tileAveragecolor.Width = tilesOptionsDisplaySize;
+                SolidColorBrush color = new SolidColorBrush();
+                color.Color = tile.color;
+                tileAveragecolor.Fill = color;
+                tileAveragecolor.Margin = new Thickness(2, 0, 2, 0);
 
 
-                //add an image of the average colour of each tile for each row
-                Rectangle tileAverageColour = new Rectangle();
-
-                tileAverageColour.Height = tilesOptionsTileSize;
-                tileAverageColour.Width = tilesOptionsTileSize;
-                SolidColorBrush colour = new SolidColorBrush();
-                colour.Color = c;
-                tileAverageColour.Fill = colour;
-                tileAverageColour.Margin = new Thickness(2, 0, 2, 0);
-
-
-                tilesOptionsGrid.Children.Add(tileAverageColour);
-                Grid.SetColumn(tileAverageColour, 2);
-                Grid.SetRow(tileAverageColour, tilesOptionsGridRow);
+                tilesOptionsGrid.Children.Add(tileAveragecolor);
+                Grid.SetColumn(tileAveragecolor, 2);
+                Grid.SetRow(tileAveragecolor, tilesOptionsGridRow);
 
                 //add difference 
 
@@ -685,37 +466,123 @@ namespace TabMenu2
             tilesList[Convert.ToInt32((sender as CheckBox).Tag)].enabled = Convert.ToBoolean((sender as CheckBox).IsChecked);
         }
 
-        void ProcessTile(string fileName, int row, int col)
+        void ProcessTile(string fileName, int index)
         {
-            Console.WriteLine(fileName);
+          
             // create a new image for each tile and add it to the stackPanel
 
             BitmapSource bmTile = new BitmapImage(new Uri(fileName));
 
-            addImageToList(bmTile, row, col);
+            var bmScaled = new TransformedBitmap(bmTile, new ScaleTransform((double)defaultTileSize / bmTile.PixelWidth, (double)defaultTileSize / bmTile.PixelHeight));            
+
+            addImageToList(bmScaled, index);
 
         }
 
-        void addImageToList(BitmapSource bmTile, int row, int col)
+        void addImageToList(BitmapSource bmTile, int index)
         {
 
-            Image newTileImage = new Image();
-
-            newTileImage.Source = bmTile;
-            newTileImage.Height = tilesImageSize - tilesMargin;
-            newTileImage.Width = tilesImageSize;
-            newTileImage.Stretch = Stretch.Fill;
-            newTileImage.Margin = new Thickness(2, 2, 2, 2);
-
-            //add to internal array
+            //create a new custom tile. provide it with the bitmap, then add it to the internal list of tiles
 
             Tile tile = new Tile();
             tile.bmSource = bmTile;
             tilesList.Add(tile);
 
+            //add the tile image to the tiles grid on the main page
+
+            addToMainPageGrid(bmTile, index);
+
+            // add to the list view on the options page
+
+            addToOptionsList(tile, index);
+
+           
+        }
+
+        void addToMainPageGrid(BitmapSource bmTile, int index)
+        {
+            Image newTileImage = new Image();
+
+            newTileImage.Source = bmTile;
+            newTileImage.Height = tilesMainDisplaySize - tilesMargin;
+            newTileImage.Width = tilesMainDisplaySize;
+            newTileImage.Stretch = Stretch.Fill;
+            newTileImage.Margin = new Thickness(2, 2, 2, 2);
+
+            int row = index / tilesPanelCols;
+            int col = index % tilesPanelCols;
+
+            if (col == 0)
+            {
+                var rowDefinition = new RowDefinition();
+                rowDefinition.Height = GridLength.Auto;
+                tilesPreviewGrid.RowDefinitions.Add(rowDefinition);
+            }
+
             tilesPreviewGrid.Children.Add(newTileImage);
             Grid.SetColumn(newTileImage, col);
             Grid.SetRow(newTileImage, row);
+            
+            
+        }
+
+        void addToOptionsList(Tile tile, int index)
+        {
+            RowDefinition rowDefinition = new RowDefinition();
+            rowDefinition.Height = GridLength.Auto;
+            tilesOptionsGrid.RowDefinitions.Add(rowDefinition);
+
+            //add a checkbox for each row                
+            CheckBox cbTileEnabled = new CheckBox();
+            cbTileEnabled.IsChecked = tile.enabled;
+            cbTileEnabled.HorizontalAlignment = HorizontalAlignment.Center;
+            cbTileEnabled.Click += cbTileEnabled_Click;
+            cbTileEnabled.Tag = index;
+
+            tilesOptionsGrid.Children.Add(cbTileEnabled);
+            Grid.SetColumn(cbTileEnabled, 0);
+            Grid.SetRow(cbTileEnabled, index);
+
+            //add an image of each tile for each row
+            Image newTileImage = new Image();
+
+            newTileImage.Source = tile.bmSource;
+            newTileImage.Height = tilesOptionsDisplaySize;
+            newTileImage.Width = tilesOptionsDisplaySize;
+            newTileImage.Stretch = Stretch.Fill;
+            newTileImage.Margin = new Thickness(2, 0, 2, 0);
+
+
+            tilesOptionsGrid.Children.Add(newTileImage);
+            Grid.SetColumn(newTileImage, 1);
+            Grid.SetRow(newTileImage, index);
+
+            //add an image of the average color of each tile for each row
+            Rectangle tileAveragecolor = new Rectangle();
+
+            tileAveragecolor.Height = tilesOptionsDisplaySize;
+            tileAveragecolor.Width = tilesOptionsDisplaySize;
+            SolidColorBrush color = new SolidColorBrush();
+            color.Color = tile.color;
+            tileAveragecolor.Fill = color;
+            tileAveragecolor.Margin = new Thickness(2, 0, 2, 0);
+
+
+            tilesOptionsGrid.Children.Add(tileAveragecolor);
+            Grid.SetColumn(tileAveragecolor, 2);
+            Grid.SetRow(tileAveragecolor, index);
+
+            //add difference 
+
+            TextBlock tbDifference = new TextBlock();
+            tbDifference.Text = "?";
+            tbDifference.HorizontalAlignment = HorizontalAlignment.Center;
+
+            tilesOptionsGrid.Children.Add(tbDifference);
+            Grid.SetColumn(tbDifference, 3);
+            Grid.SetRow(tbDifference, index);
+
+            tile.differenceText = tbDifference;            
         }
 
         void tryEnablingBoxes()
