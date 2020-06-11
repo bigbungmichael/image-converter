@@ -12,7 +12,21 @@ namespace CustomTile
 {
     public class Tile
     {
-        public bool enabled { get; set; } = false;
+        private bool privateEnabled = true;
+        public bool enabled
+        {
+            get
+            {
+                return privateEnabled;
+            }
+            set
+            {
+                privateEnabled = value;
+                checkBox.IsChecked = privateEnabled;                
+            }
+        }        
+
+        public CheckBox checkBox { get; set; } = null;
 
         private Color privateColor;
         public Color color
@@ -53,8 +67,8 @@ namespace CustomTile
                 color = c;
             }
         }
-        public double difference { get; set; } = 0.0;
-        public TextBlock differenceText { get; set; } = null;
+        //public double difference { get; set; } = 0.0;
+        //public TextBlock differenceText { get; set; } = null;
 
         public Tile()
         {

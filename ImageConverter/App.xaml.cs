@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace TabMenu2
+namespace ImageConverter
 {
     /// <summary>
     /// Interaction logic for App.xaml

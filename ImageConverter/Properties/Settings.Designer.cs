@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TabMenu2.Properties
+namespace ImageConverter.Properties
 {
 
 

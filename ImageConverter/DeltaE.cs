@@ -120,7 +120,7 @@ namespace DeltaE
             // Based upon the Delta-E (1976) formula at easyrgb.com (http://www.easyrgb.com/index.php?X=DELT&H=03#text3)
             //double DeltaE = Math.Sqrt(Math.Pow((CieL - oComparisionColor.CieL), 2) + Math.Pow((CieA - oComparisionColor.CieA), 2) + Math.Pow((CieB - oComparisionColor.CieB), 2));
             double DeltaE = Math.Pow((CieL - oComparisionColor.CieL), 2) + Math.Pow((CieA - oComparisionColor.CieA), 2) + Math.Pow((CieB - oComparisionColor.CieB), 2);
-            return Convert.ToInt16(Math.Round(DeltaE));
+            return Convert.ToInt32(Math.Round(DeltaE));
         }
 
         public static int DoFullCompare(int R1, int G1, int B1, int R2, int G2, int B2)
