@@ -21,21 +21,30 @@
 
                 <TabItem Header="CREATE">
                     <Grid>
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="23"/>
+                        </Grid.RowDefinitions>                        
+
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*"/>
                             <ColumnDefinition Width="250"/>
                         </Grid.ColumnDefinitions>
 
                         <Grid Margin="15,15,7.5,15" xmlns:local="clr-namespace:PanAndZoom">
-                            <Rectangle x:Name="rectMain" Grid.Column="0" Fill="#dddddd" Cursor ="Hand" MouseDown="rectMain_MouseDown" Drop="rectMain_Drop" AllowDrop="True" Stroke="#b5b5b5" StrokeThickness="3" DragEnter="rectMain_DragEnter" DragLeave="rectMain_DragLeave"/>
+                            <Rectangle x:Name="rectMain" Grid.Column="0" Fill="#dddddd" Cursor ="Hand" MouseDown="rectMain_MouseDown" Drop="rectMain_Drop" AllowDrop="True" Stroke="#b5b5b5" StrokeThickness="3" DragEnter="rectMain_DragEnter" DragLeave="rectMain_DragLeave" MouseEnter="rectMain_MouseEnter" MouseLeave="rectMain_MouseLeave"/>
                             <TextBlock x:Name="tbMain" Grid.Column="0" Text="Drop image or click to browse" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             <local:ZoomBorder x:Name="border" ClipToBounds="True">
                                 <Image Grid.Column="0" x:Name="imgMain"  Cursor ="Hand" Drop="rectMain_Drop" AllowDrop="True" MouseLeftButtonDown="rectMain_MouseDown"/>
-                            </local:ZoomBorder>
-                            <Rectangle x:Name="rectWarning" Grid.Column="0" Fill="#f7867e" Height="70" VerticalAlignment="Bottom" Stroke="#ba0c00" StrokeThickness="3" Opacity="0"/>
-                            <TextBlock x:Name="tbWarning" Grid.Column="0" Text="No tiles selected" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,25" Opacity="0"/>
+                            </local:ZoomBorder>                            
+                           
+                        </Grid>
 
-                            
+                        <Grid Grid.Row="1" Grid.ColumnSpan="2" Background="#3b7d40">
+                            <TextBlock x:Name="tbTooltip" Foreground="#ffffff" VerticalAlignment="Center" Margin="27,0,0,0" FontSize="11"/>
+                            <materialDesign:PackIcon  Visibility="Visible" Kind="HelpCircle" Foreground="#ffffff" VerticalAlignment="Center" Margin="7,0,0,0"/>
+
                         </Grid>
 
                         <Grid x:Name="tilesPanelGrid" Grid.Column="1" Margin="7.5,15,15,15">
@@ -79,8 +88,9 @@
                                 <TextBlock Text="Height" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
 
                                 <TextBox x:Name="tilesSizeBox" Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" Text="64" Width="Auto" VerticalAlignment="Center" LostFocus="tilesSizeBox_LostFocus" KeyDown="tilesSizeBox_KeyDown" PreviewTextInput="tilesSizeBox_PreviewTextInput"/>
-                                <TextBox x:Name="xScaling" Grid.Row="1" Grid.Column="1" Margin="10,0,0,0" Text="1" Width="Auto" VerticalAlignment="Center" TextChanged="xScaling_TextChanged" IsEnabled="False" PreviewTextInput="xScaling_PreviewTextInput"/>
-                                <TextBox x:Name="yScaling" Grid.Row="2" Grid.Column="1" Margin="10,0,0,0" Text="1" Width="Auto" VerticalAlignment="Center" TextChanged="yScaling_TextChanged" IsEnabled="False" PreviewTextInput="yScaling_PreviewTextInput"/>
+                                <TextBox x:Name="xScaling" Grid.Row="1" Grid.Column="1" Margin="10,0,0,0" Text="1" Width="Auto" VerticalAlignment="Center" TextChanged="xScaling_TextChanged" IsEnabled="False" PreviewTextInput="xScaling_PreviewTextInput" MouseEnter="xScaling_MouseEnter" MouseLeave="xScaling_MouseLeave"/>
+                                
+                                <TextBox x:Name="yScaling" Grid.Row="2" Grid.Column="1" Margin="10,0,0,0" Text="1" Width="Auto" VerticalAlignment="Center" TextChanged="yScaling_TextChanged" IsEnabled="False" PreviewTextInput="yScaling_PreviewTextInput" MouseEnter="yScaling_MouseEnter" MouseLeave="yScaling_MouseLeave"/>
 
                                 <materialDesign:PackIcon Kind="Link" Grid.RowSpan="2" Grid.Row="1" Grid.Column="2" Margin = "10,0,0,0" VerticalAlignment="Center"/>
                             </Grid>

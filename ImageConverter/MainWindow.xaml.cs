@@ -128,13 +128,7 @@ namespace ImageConverter
 
         void showErrorMessage()
         {
-            DoubleAnimation da1 = new DoubleAnimation();
-            da1.From = 0;
-            da1.To = 1;
-            da1.Duration = new Duration(TimeSpan.FromSeconds(0.5));           
-            rectWarning.BeginAnimation(OpacityProperty, da1);
-            tbWarning.BeginAnimation(OpacityProperty, da1);
-
+            
         }
         
         void addTileToImage(Tile tile, int row, int col, WriteableBitmap background)
@@ -655,6 +649,34 @@ namespace ImageConverter
             }
         }
 
-        
+        private void rectMain_MouseEnter(object sender, MouseEventArgs e)
+        {
+            tbTooltip.Text = "Drop or browse to the image to be converted";
+        }
+
+        private void rectMain_MouseLeave(object sender, MouseEventArgs e)
+        {
+            tbTooltip.Text = "";
+        }
+
+        private void xScaling_MouseEnter(object sender, MouseEventArgs e)
+        {
+            tbTooltip.Text = "The width of the output image, in tiles";
+        }
+
+        private void xScaling_MouseLeave(object sender, MouseEventArgs e)
+        {
+            tbTooltip.Text = "";
+        }
+
+        private void yScaling_MouseEnter(object sender, MouseEventArgs e)
+        {
+            tbTooltip.Text = "The height of the output image, in tiles";
+        }
+
+        private void yScaling_MouseLeave(object sender, MouseEventArgs e)
+        {
+            tbTooltip.Text = "";
+        }
     }
 }
