@@ -24,6 +24,7 @@
 
                         <Grid.RowDefinitions>
                             <RowDefinition Height="1*"/>
+                            <RowDefinition x:Name="rowWarning" Height="0"/>
                             <RowDefinition Height="23"/>
                         </Grid.RowDefinitions>                        
 
@@ -33,18 +34,24 @@
                         </Grid.ColumnDefinitions>
 
                         <Grid Margin="15,15,7.5,15" xmlns:local="clr-namespace:PanAndZoom">
-                            <Rectangle x:Name="rectMain" Grid.Column="0" Fill="#dddddd" Cursor ="Hand" MouseDown="rectMain_MouseDown" Drop="rectMain_Drop" AllowDrop="True" Stroke="#b5b5b5" StrokeThickness="3" DragEnter="rectMain_DragEnter" DragLeave="rectMain_DragLeave" MouseEnter="rectMain_MouseEnter" MouseLeave="rectMain_MouseLeave"/>
-                            <TextBlock x:Name="tbMain" Grid.Column="0" Text="Drop image or click to browse" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Rectangle x:Name="rectMain" Grid.Column="0" Fill="#dddddd" Cursor ="Hand" MouseDown="rectMain_MouseDown" Drop="rectMain_Drop" AllowDrop="True" Stroke="#b5b5b5" StrokeThickness="3" DragEnter="rectMain_DragEnter" DragLeave="rectMain_DragLeave" MouseEnter="rectMain_MouseEnter" MouseLeave="resetTooltip"/>
+                            <TextBlock x:Name="tbMain" Grid.Column="0" Text="Drop image or click to browse" HorizontalAlignment="Center" VerticalAlignment="Center" MouseEnter="rectMain_MouseEnter" MouseLeave="resetTooltip"/>
                             <local:ZoomBorder x:Name="border" ClipToBounds="True">
-                                <Image Grid.Column="0" x:Name="imgMain"  Cursor ="Hand" Drop="rectMain_Drop" AllowDrop="True" MouseLeftButtonDown="rectMain_MouseDown"/>
+                                <Image Grid.Column="0" x:Name="imgMain"  Cursor ="Hand" Drop="rectMain_Drop" AllowDrop="True" MouseLeftButtonDown="rectMain_MouseDown"  MouseLeave="resetTooltip" MouseEnter="imgMain_MouseEnter"/>
                             </local:ZoomBorder>                            
                            
                         </Grid>
 
-                        <Grid Grid.Row="1" Grid.ColumnSpan="2" Background="#3b7d40">
-                            <TextBlock x:Name="tbTooltip" Foreground="#ffffff" VerticalAlignment="Center" Margin="27,0,0,0" FontSize="11"/>
-                            <materialDesign:PackIcon  Visibility="Visible" Kind="HelpCircle" Foreground="#ffffff" VerticalAlignment="Center" Margin="7,0,0,0"/>
+                        <Grid Grid.Row="2" Grid.ColumnSpan="2" Background="#3b7d40">
+                            <TextBlock x:Name="tbTooltip" Foreground="#ffffff" VerticalAlignment="Center" Margin="27,0,0,0" FontSize="11"/>                            
+                            <materialDesign:PackIcon x:Name="iconTooltip" Visibility="Hidden" Kind="HelpCircle" Foreground="#ffffff" VerticalAlignment="Center" Margin="7,0,0,0"/>                            
+                        </Grid>
 
+                        <Grid x:Name="gridWarning" Grid.Row="1" Grid.ColumnSpan="2" Background="#ff0000" >
+                            <TextBlock x:Name="tbWarning" Foreground="#ffffff" VerticalAlignment="Center" Margin="27,0,0,0" FontSize="11"/>
+                            <materialDesign:PackIcon x:Name="iconWarning" Visibility="Hidden" Kind="AlertCircle" Foreground="#ffffff" VerticalAlignment="Center" Margin="7,0,0,0"/>
+                            <Rectangle Fill="#b80000" HorizontalAlignment="Right" Width="29" MouseDown="closeWarning_MouseDown"/>
+                            <materialDesign:PackIcon x:Name="closeWarning" Visibility="Visible" Kind="CloseCircle" Foreground="#ffffff" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,7,0" MouseDown="closeWarning_MouseDown" />
                         </Grid>
 
                         <Grid x:Name="tilesPanelGrid" Grid.Column="1" Margin="7.5,15,15,15">
@@ -55,7 +62,7 @@
                             </Grid.RowDefinitions>
 
 
-                            <ScrollViewer Grid.Column ="0" CanContentScroll="True" HorizontalScrollBarVisibility ="Hidden" VerticalScrollBarVisibility="Visible">
+                            <ScrollViewer Grid.Column ="0" CanContentScroll="True" HorizontalScrollBarVisibility ="Hidden" VerticalScrollBarVisibility="Visible" MouseEnter="tilesPanelGrid_MouseEnter" MouseLeave="resetTooltip">
                                 <Grid x:Name="tilesPreviewGrid" Cursor="Hand" AllowDrop="True" MouseDown="rectTilesPreview_MouseDown" Drop="rectTilesPreview_Drop" DragEnter="rectTilesPreview_DragEnter" DragLeave="rectTilesPreview_DragLeave">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="1*"/>
@@ -68,8 +75,8 @@
                                 </Grid>
                             </ScrollViewer>
 
-                            <Rectangle x:Name="rectTilesPreview" Grid.Row="0" Fill="#dddddd" Stroke="#b5b5b5" StrokeThickness="3" Cursor="Hand" AllowDrop="True" MouseDown="rectTilesPreview_MouseDown" Drop="rectTilesPreview_Drop" DragEnter="rectTilesPreview_DragEnter" DragLeave="rectTilesPreview_DragLeave"/>
-                            <TextBlock x:Name="textTilesPreview" Grid.Column="0" Text="Drop tiles/tilesheet&#10;or click to browse" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand" AllowDrop="True" TextAlignment="Center" MouseDown="rectTilesPreview_MouseDown" Drop="rectTilesPreview_Drop" DragEnter="rectTilesPreview_DragEnter" DragLeave="rectTilesPreview_DragLeave"/>
+                            <Rectangle x:Name="rectTilesPreview" Grid.Row="0" Fill="#dddddd" Stroke="#b5b5b5" StrokeThickness="3" Cursor="Hand" AllowDrop="True" MouseDown="rectTilesPreview_MouseDown" Drop="rectTilesPreview_Drop" DragEnter="rectTilesPreview_DragEnter" DragLeave="rectTilesPreview_DragLeave" MouseEnter="tilesPanelGrid_MouseEnter" MouseLeave="resetTooltip"/>
+                            <TextBlock x:Name="textTilesPreview" Grid.Column="0" Text="Drop tiles/tilesheet&#10;or click to browse" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand" AllowDrop="True" TextAlignment="Center" MouseDown="rectTilesPreview_MouseDown" Drop="rectTilesPreview_Drop" DragEnter="rectTilesPreview_DragEnter" DragLeave="rectTilesPreview_DragLeave" MouseEnter="tilesPanelGrid_MouseEnter" MouseLeave="resetTooltip"/>
 
                             <Grid Grid.Row="1" Margin="0,15,0,0">
                                 <Grid.ColumnDefinitions>
@@ -87,10 +94,9 @@
                                 <TextBlock Text="Width" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                 <TextBlock Text="Height" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
 
-                                <TextBox x:Name="tilesSizeBox" Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" Text="64" Width="Auto" VerticalAlignment="Center" LostFocus="tilesSizeBox_LostFocus" KeyDown="tilesSizeBox_KeyDown" PreviewTextInput="tilesSizeBox_PreviewTextInput"/>
-                                <TextBox x:Name="xScaling" Grid.Row="1" Grid.Column="1" Margin="10,0,0,0" Text="1" Width="Auto" VerticalAlignment="Center" TextChanged="xScaling_TextChanged" IsEnabled="False" PreviewTextInput="xScaling_PreviewTextInput" MouseEnter="xScaling_MouseEnter" MouseLeave="xScaling_MouseLeave"/>
-                                
-                                <TextBox x:Name="yScaling" Grid.Row="2" Grid.Column="1" Margin="10,0,0,0" Text="1" Width="Auto" VerticalAlignment="Center" TextChanged="yScaling_TextChanged" IsEnabled="False" PreviewTextInput="yScaling_PreviewTextInput" MouseEnter="yScaling_MouseEnter" MouseLeave="yScaling_MouseLeave"/>
+                                <TextBox x:Name="tilesSizeBox" Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" Text="64" Width="Auto" VerticalAlignment="Center" LostFocus="tilesSizeBox_LostFocus" KeyDown="tilesSizeBox_KeyDown" PreviewTextInput="tilesSizeBox_PreviewTextInput" MouseEnter="tilesSizeBox_MouseEnter" MouseLeave="resetTooltip"/>
+                                <TextBox x:Name="xScaling" Grid.Row="1" Grid.Column="1" Margin="10,0,0,0" Text="1" Width="Auto" VerticalAlignment="Center" TextChanged="xScaling_TextChanged" IsEnabled="False" PreviewTextInput="xScaling_PreviewTextInput" MouseEnter="xScaling_MouseEnter" MouseLeave="resetTooltip"/>
+                                <TextBox x:Name="yScaling" Grid.Row="2" Grid.Column="1" Margin="10,0,0,0" Text="1" Width="Auto" VerticalAlignment="Center" TextChanged="yScaling_TextChanged" IsEnabled="False" PreviewTextInput="yScaling_PreviewTextInput" MouseEnter="yScaling_MouseEnter" MouseLeave="resetTooltip"/>
 
                                 <materialDesign:PackIcon Kind="Link" Grid.RowSpan="2" Grid.Row="1" Grid.Column="2" Margin = "10,0,0,0" VerticalAlignment="Center"/>
                             </Grid>
@@ -101,8 +107,8 @@
                                     <ColumnDefinition Width="1*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <Button x:Name="btnCreate" Grid.Column="0" Margin="0,15,4,0" Content="CREATE" Height="Auto" Click="btnCreate_Click" IsEnabled="False"/>
-                                <Button x:Name="btnSave" Grid.Column="1" Margin="4,15,0,0" Content="SAVE" Height="Auto" Click="btnSave_Click" IsEnabled="False"/>
+                                <Button x:Name="btnCreate" Grid.Column="0" Margin="0,15,4,0" Content="CREATE" Height="Auto" Click="btnCreate_Click" IsEnabled="False" MouseEnter="btnCreate_MouseEnter" MouseLeave="resetTooltip" />
+                                <Button x:Name="btnSave" Grid.Column="1" Margin="4,15,0,0" Content="SAVE" Height="Auto" Click="btnSave_Click" IsEnabled="False" MouseEnter="btnSave_MouseEnter" MouseLeave="resetTooltip"/>
                                 
                             </Grid>                        
 
@@ -113,19 +119,31 @@
                 </TabItem>
                 <TabItem Header="OPTIONS">
                     <Grid >
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="23"/>
+                        </Grid.RowDefinitions>
+
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="3" />
                             <ColumnDefinition Width="1*"/>
                             <ColumnDefinition Width="3*"/>
                         </Grid.ColumnDefinitions>
-                        
+
+                        <Grid Grid.Row="2" Grid.ColumnSpan="4" Background="#3b7d40">
+                            <TextBlock x:Name="tbOptionsTooltip" Foreground="#ffffff" VerticalAlignment="Center" Margin="27,0,0,0" FontSize="11"/>
+                            <materialDesign:PackIcon x:Name="iconOptionsTooltip" Visibility="Hidden" Kind="HelpCircle" Foreground="#ffffff" VerticalAlignment="Center" Margin="7,0,0,0"/>
+                        </Grid>
+
                         <Grid Grid.Column ="0" Background="#ffffff">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="1*"/>
-                            </Grid.RowDefinitions>
+                            </Grid.RowDefinitions>              
+                           
 
                             <Grid Grid.Row="0" Background="#eeeeee" Margin="0,0,0,0" >
                                 <TextBlock Text="Tiles" Margin="0,8,0,8" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="16" Foreground="Black"/>
@@ -133,15 +151,16 @@
 
                             <Grid Grid.Row="1" Margin="0,10,0,10">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="80"/>
                                     <ColumnDefinition Width="80"/>
                                     <ColumnDefinition Width="80"/>                                    
                                 </Grid.ColumnDefinitions>
 
                                 <TextBlock Grid.Column="0" Text="Enabled" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 <TextBlock Grid.Column="1" Text="Tile" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="2" Text="Colour" HorizontalAlignment="Center" VerticalAlignment="Center"/>                            
+                                <TextBlock Grid.Column="2" Text="Colour" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
+                               
 
 
                             </Grid>
@@ -152,16 +171,18 @@
                                         <ColumnDefinition Width="80"/>
                                         <ColumnDefinition Width="80"/>
                                         <ColumnDefinition Width="80"/>                                        
-                                    </Grid.ColumnDefinitions>
+                                    </Grid.ColumnDefinitions>                                  
 
-                                    <CheckBox Grid.Column="0" VerticalAlignment="Top"/>
-                                    <Image Grid.Column="1" Width="60" VerticalAlignment="Top" Source="black.png" Margin="2,0,2,0"/>
-                                    <Image Grid.Column="2" Width="60" VerticalAlignment="Top" Source="black.png" Margin="2,0,2,0"/>
 
-                                </Grid>                               
+                                </Grid>     
+                                
+                                
                                 
 
                             </ScrollViewer>
+
+                            
+                            
                         </Grid>
 
                         <Grid Grid.Column="1" Background="#eeeeee"/>

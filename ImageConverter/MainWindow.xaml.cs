@@ -18,6 +18,7 @@ using System.Windows.Media.Animation;
 using PanAndZoom;
 using DeltaE;
 using CustomTile;
+using System.Timers;
 
 namespace ImageConverter
 {    
@@ -128,7 +129,8 @@ namespace ImageConverter
 
         void showErrorMessage()
         {
-            
+            rowWarning.Height = new GridLength(23);
+            updateWarning("Couldn't create an image as no tiles are enabled");
         }
         
         void addTileToImage(Tile tile, int row, int col, WriteableBitmap background)
@@ -469,6 +471,8 @@ namespace ImageConverter
             cbTileEnabled.IsChecked = tile.enabled;
             cbTileEnabled.HorizontalAlignment = HorizontalAlignment.Center;
             cbTileEnabled.Click += cbTileEnabled_Click;
+            cbTileEnabled.MouseEnter += colEnabled_MouseEnter;
+            
             cbTileEnabled.Tag = index;
             tile.checkBox = cbTileEnabled;
 
@@ -649,34 +653,102 @@ namespace ImageConverter
             }
         }
 
+        void updateTooltip(String tooltip)
+        {
+            tbTooltip.Text = tooltip;
+            tbOptionsTooltip.Text = tooltip;
+            iconTooltip.Visibility = Visibility.Visible;
+            iconOptionsTooltip.Visibility = Visibility.Visible;
+        }
+
+        private void resetTooltip(object sender, MouseEventArgs e)
+        {
+            tbTooltip.Text = "";
+            tbOptionsTooltip.Text = "";
+            iconTooltip.Visibility = Visibility.Hidden;
+            iconOptionsTooltip.Visibility = Visibility.Hidden;
+        }
+
+        void resetTooltipDynamic(MouseEventHandler e)
+        {
+            tbTooltip.Text = "";
+            tbOptionsTooltip.Text = "";
+            iconTooltip.Visibility = Visibility.Hidden;
+            iconOptionsTooltip.Visibility = Visibility.Hidden;
+        }
+
+        void updateWarning(String warning)
+        {            
+            tbWarning.Visibility = Visibility.Visible;            
+            iconWarning.Visibility = Visibility.Visible;
+
+            tbWarning.Text = warning;            
+        }
+
+        private void closeWarning_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            rowWarning.Height = new GridLength(0);           
+            tbWarning.Visibility = Visibility.Hidden;            
+            iconWarning.Visibility = Visibility.Hidden;
+
+            tbWarning.Text = "";
+        }
+       
         private void rectMain_MouseEnter(object sender, MouseEventArgs e)
         {
-            tbTooltip.Text = "Drop or browse to the image to be converted";
+            updateTooltip("Drop or browse to the image to be converted");
         }
-
-        private void rectMain_MouseLeave(object sender, MouseEventArgs e)
-        {
-            tbTooltip.Text = "";
-        }
-
+       
         private void xScaling_MouseEnter(object sender, MouseEventArgs e)
         {
-            tbTooltip.Text = "The width of the output image, in tiles";
+            updateTooltip("The width of the output image, in tiles");
         }
-
-        private void xScaling_MouseLeave(object sender, MouseEventArgs e)
-        {
-            tbTooltip.Text = "";
-        }
-
+       
         private void yScaling_MouseEnter(object sender, MouseEventArgs e)
         {
-            tbTooltip.Text = "The height of the output image, in tiles";
+            updateTooltip("The height of the output image, in tiles");
+        }
+      
+        private void tilesSizeBox_MouseEnter(object sender, MouseEventArgs e)
+        {
+            updateTooltip("The size of a single tile, in pixels");
         }
 
-        private void yScaling_MouseLeave(object sender, MouseEventArgs e)
+        private void tilesPanelGrid_MouseEnter(object sender, MouseEventArgs e)
         {
-            tbTooltip.Text = "";
+            updateTooltip("Drop or browse to a tilesheet or selection of several tiles");
         }
+
+        private void btnCreate_MouseEnter(object sender, MouseEventArgs e)
+        {
+            updateTooltip("Recreate the loaded image out of the loaded tiles");
+        }
+
+        private void btnSave_MouseEnter(object sender, MouseEventArgs e)
+        {
+            updateTooltip("Open a file dialog and browse to where you want to save the image");
+        }
+
+        private void imgMain_MouseEnter(object sender, MouseEventArgs e)
+        {
+            updateTooltip("You can scroll to zoom, and drag with the right mouse button to pan across the image. You can also left-click or drop a new image in");
+        }        
+
+        private void colEnabled_MouseEnter(object sender, MouseEventArgs e)
+        {
+            updateTooltip("Disabled tiles won't be used in the output image");
+        }
+
+        private void colTile_MouseEnter(object sender, MouseEventArgs e)
+        {
+            updateTooltip("");
+        }
+
+        private void colColor_MouseEnter(object sender, MouseEventArgs e)
+        {
+            updateTooltip("The average colour of each tile");
+        }
+
+        
     }
 }
